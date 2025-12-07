@@ -4,14 +4,16 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  final String baseUrl = dotenv.env['API_BASE_URL'] ?? '';
+  final String baseUrl = 'http://agrovet.sudsudgroup.com/api';
+  // dotenv.env['API_BASE_URL'] ?? '';
 
   Future<String?> _getToken() async {
     final sp = await SharedPreferences.getInstance();
     return sp.getString('token');
   }
 
-  Future<http.Response> post(String path, Map<String, dynamic> body, {bool auth = true}) async {
+  Future<http.Response> post(String path, Map<String, dynamic> body,
+      {bool auth = true}) async {
     final url = Uri.parse('$baseUrl$path');
     final headers = await _headers(auth: auth);
     return http.post(url, headers: headers, body: jsonEncode(body));
@@ -23,7 +25,8 @@ class ApiService {
     return http.get(url, headers: headers);
   }
 
-  Future<http.Response> put(String path, Map<String, dynamic> body, {bool auth = true}) async {
+  Future<http.Response> put(String path, Map<String, dynamic> body,
+      {bool auth = true}) async {
     final url = Uri.parse('$baseUrl$path');
     final headers = await _headers(auth: auth);
     return http.put(url, headers: headers, body: jsonEncode(body));

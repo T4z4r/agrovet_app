@@ -2,20 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/product_provider.dart';
 import '../products/products_screen.dart';
 import '../sales/cart_screen.dart';
 import '../reports/daily_report_screen.dart';
 import '../products/product_detail_screen.dart';
 import '../../widgets/app_drawer.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final cart = Provider.of<CartProvider>(context, listen: false);
+      cart.loadCart();
+      final product = Provider.of<ProductProvider>(context, listen: false);
+      product.fetchProducts();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
     final cart = Provider.of<CartProvider>(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('AgroVet Dashboard'),
@@ -93,13 +110,17 @@ class DashboardScreen extends StatelessWidget {
                             children: [
                               Text(
                                 'Welcome back!',
-                                style: Theme.of(context).textTheme.headlineMedium,
+                                style:
+                                    Theme.of(context).textTheme.headlineMedium,
                               ),
                               Text(
                                 auth.user?['name'] ?? 'User',
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  color: Colors.grey[600],
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                      color: Colors.grey[600],
+                                    ),
                               ),
                             ],
                           ),
@@ -111,14 +132,14 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Quick Actions
             Text(
               'Quick Actions',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 16),
-            
+
             GridView.count(
               crossAxisCount: 2,
               crossAxisSpacing: 16,
@@ -157,7 +178,8 @@ class DashboardScreen extends StatelessWidget {
                   color: const Color(0xFF9C27B0),
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const DailyReportScreen()),
+                    MaterialPageRoute(
+                        builder: (_) => const DailyReportScreen()),
                   ),
                 ),
                 _buildActionCard(
@@ -170,9 +192,9 @@ class DashboardScreen extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Today's Summary
             Card(
               child: Padding(
@@ -260,16 +282,16 @@ class DashboardScreen extends StatelessWidget {
               Text(
                 title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                      fontWeight: FontWeight.w600,
+                    ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                      color: Colors.grey[600],
+                    ),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -297,15 +319,15 @@ class DashboardScreen extends StatelessWidget {
         Text(
           value,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
         ),
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Colors.grey[600],
-          ),
+                color: Colors.grey[600],
+              ),
         ),
       ],
     );

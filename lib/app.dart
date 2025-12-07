@@ -9,7 +9,11 @@ import 'src/providers/stock_provider.dart';
 import 'src/providers/expense_provider.dart';
 import 'src/providers/sales_provider.dart';
 import 'src/screens/auth/login_screen.dart';
+import 'src/screens/main_navigation_screen.dart';
 import 'src/screens/home/dashboard_screen.dart';
+import 'src/screens/products/products_screen.dart';
+import 'src/screens/sales/cart_screen.dart';
+import 'src/screens/reports/daily_report_screen.dart';
 
 class AgrovetApp extends StatelessWidget {
   const AgrovetApp({super.key});
@@ -30,17 +34,18 @@ class AgrovetApp extends StatelessWidget {
             create: (_) => ExpenseProvider()),
         ChangeNotifierProvider<SalesProvider>(create: (_) => SalesProvider()),
       ],
-      child: Consumer<AuthProvider>(
-        builder: (context, auth, _) {
-          return MaterialApp(
-            title: 'AgroVet',
-            theme: _buildTheme(),
-            home: auth.isAuthenticated
-                ? const DashboardScreen()
-                : const LoginScreen(),
-            debugShowCheckedModeBanner: false,
-          );
+      child: MaterialApp(
+        title: 'AgroVet',
+        theme: _buildTheme(),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const LoginScreen(),
+          '/dashboard': (context) => const MainNavigationScreen(),
+          '/products': (context) => const ProductsScreen(),
+          '/cart': (context) => const CartScreen(),
+          '/reports': (context) => const DailyReportScreen(),
         },
+        debugShowCheckedModeBanner: false,
       ),
     );
   }

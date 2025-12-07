@@ -29,146 +29,106 @@ class _ProductsScreenState extends State<ProductsScreen> {
     final prov = Provider.of<ProductProvider>(context);
     final cart = Provider.of<CartProvider>(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Products'),
-        actions: [
-          Stack(
+    return prov.loading
+        ? const LoadingWidget()
+        : Column(
             children: [
-              IconButton(
-                icon: const Icon(Icons.shopping_cart),
-                onPressed: () => Navigator.pushNamed(context, '/cart'),
+              // Search Bar
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search products...',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value;
+                    });
+                  },
+                ),
               ),
-              if (cart.items.isNotEmpty)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 16,
-                      minHeight: 16,
-                    ),
-                    child: Text(
-                      '${cart.items.length}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+
+              // Filter Chips (if needed)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildFilterChip('All', selectedCategory == 'All', () {
+                        setState(() {
+                          selectedCategory = 'All';
+                        });
+                      }),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('Medicines', selectedCategory == 'Medicines', () {
+                        setState(() {
+                          selectedCategory = 'Medicines';
+                        });
+                      }),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('Feed', selectedCategory == 'Feed', () {
+                        setState(() {
+                          selectedCategory = 'Feed';
+                        });
+                      }),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('Equipment', selectedCategory == 'Equipment', () {
+                        setState(() {
+                          selectedCategory = 'Equipment';
+                        });
+                      }),
+                    ],
                   ),
                 ),
-            ],
-          ),
-        ],
-      ),
-      body: prov.loading
-          ? const LoadingWidget()
-          : Column(
-              children: [
-                // Search Bar
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search products...',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        searchQuery = value;
-                      });
-                    },
-                  ),
-                ),
-                
-                // Filter Chips (if needed)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildFilterChip('All', selectedCategory == 'All', () {
-                          setState(() {
-                            selectedCategory = 'All';
-                          });
-                        }),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Medicines', selectedCategory == 'Medicines', () {
-                          setState(() {
-                            selectedCategory = 'Medicines';
-                          });
-                        }),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Feed', selectedCategory == 'Feed', () {
-                          setState(() {
-                            selectedCategory = 'Feed';
-                          });
-                        }),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Equipment', selectedCategory == 'Equipment', () {
-                          setState(() {
-                            selectedCategory = 'Equipment';
-                          });
-                        }),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                
-                // Products Grid
-                Expanded(
-                  child: prov.products.isEmpty
-                      ? const Center(
-                          child: Text('No products available'),
-                        )
-                      : GridView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                            childAspectRatio: 0.75,
-                          ),
-                          itemCount: prov.products.length,
-                          itemBuilder: (ctx, i) {
-                            final p = prov.products[i];
-                            if (searchQuery.isNotEmpty &&
-                                !p.name.toLowerCase().contains(searchQuery.toLowerCase())) {
-                              return const SizedBox.shrink();
-                            }
-                            
-                            return _buildProductCard(
-                              context,
-                              product: p,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ProductDetailScreen(product: p),
-                                ),
-                              ),
-                              onAddToCart: () => _addToCart(context, p, cart),
-                            );
-                          },
+              ),
+              const SizedBox(height: 16),
+
+              // Products Grid
+              Expanded(
+                child: prov.products.isEmpty
+                    ? const Center(
+                        child: Text('No products available'),
+                      )
+                    : GridView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 0.75,
                         ),
-                ),
-              ],
-            ),
-    );
+                        itemCount: prov.products.length,
+                        itemBuilder: (ctx, i) {
+                          final p = prov.products[i];
+                          if (searchQuery.isNotEmpty &&
+                              !p.name.toLowerCase().contains(searchQuery.toLowerCase())) {
+                            return const SizedBox.shrink();
+                          }
+
+                          return _buildProductCard(
+                            context,
+                            product: p,
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ProductDetailScreen(product: p),
+                              ),
+                            ),
+                            onAddToCart: () => _addToCart(context, p, cart),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          );
   }
 
   Widget _buildFilterChip(String label, bool isSelected, VoidCallback onTap) {

@@ -63,7 +63,7 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Navigation Items
           Expanded(
             child: ListView(
@@ -75,7 +75,7 @@ class AppDrawer extends StatelessWidget {
                   title: 'Dashboard',
                   route: '/dashboard',
                   currentRoute: currentRoute,
-                  onTap: () => _navigateTo(context, const DashboardScreen()),
+                  onTap: () => _navigateTo(context, '/dashboard'),
                 ),
                 _buildDrawerItem(
                   context,
@@ -83,7 +83,7 @@ class AppDrawer extends StatelessWidget {
                   title: 'Products',
                   route: '/products',
                   currentRoute: currentRoute,
-                  onTap: () => _navigateTo(context, const ProductsScreen()),
+                  onTap: () => _navigateTo(context, '/products'),
                 ),
                 _buildDrawerItem(
                   context,
@@ -91,7 +91,7 @@ class AppDrawer extends StatelessWidget {
                   title: 'Cart',
                   route: '/cart',
                   currentRoute: currentRoute,
-                  onTap: () => _navigateTo(context, const CartScreen()),
+                  onTap: () => _navigateTo(context, '/cart'),
                 ),
                 _buildDrawerItem(
                   context,
@@ -99,7 +99,7 @@ class AppDrawer extends StatelessWidget {
                   title: 'Daily Reports',
                   route: '/reports',
                   currentRoute: currentRoute,
-                  onTap: () => _navigateTo(context, const DailyReportScreen()),
+                  onTap: () => _navigateTo(context, '/reports'),
                 ),
                 const Divider(),
                 _buildDrawerItem(
@@ -141,7 +141,7 @@ class AppDrawer extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Logout Section
           Container(
             padding: const EdgeInsets.all(16),
@@ -193,14 +193,14 @@ class AppDrawer extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     final isSelected = currentRoute == route;
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: isSelected 
+            color: isSelected
                 ? const Color(0xFF2E7D32).withOpacity(0.2)
                 : Colors.grey.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
@@ -227,11 +227,9 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  void _navigateTo(BuildContext context, Widget page) {
+  void _navigateTo(BuildContext context, String route) {
     Navigator.of(context).pop(); // Close drawer first
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => page),
-    );
+    Navigator.of(context).pushNamed(route);
   }
 
   void _showLogoutDialog(BuildContext context, AuthProvider auth) {

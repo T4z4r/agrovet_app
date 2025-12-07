@@ -90,154 +90,121 @@ class _CartScreenState extends State<CartScreen> {
     final cart = Provider.of<CartProvider>(context);
     final productProvider = Provider.of<ProductProvider>(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Shopping Cart'),
-        actions: [
-          if (cart.items.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.clear_all),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Clear Cart'),
-                    content: const Text('Are you sure you want to clear your cart?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(ctx).pop(),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          cart.clear();
-                          Navigator.of(ctx).pop();
-                        },
-                        child: const Text('Clear'),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-        ],
-      ),
-      body: cart.items.isEmpty
-          ? const _EmptyCartView()
-          : Column(
-              children: [
-                // Cart Items
-                Expanded(
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: cart.items.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (ctx, i) {
-                      final item = cart.items[i];
-                      final product = productProvider.products
-                          .firstWhere((p) => p.id == item.productId, orElse: () => null as dynamic);
-                      
-                      return _buildCartItem(
-                        context,
-                        item: item,
-                        productName: product?.name ?? 'Product ${item.productId}',
-                        onIncrement: () {
-                          cart.addItem(item);
-                        },
-                        onDecrement: () {
-                          if (item.quantity > 1) {
-                            item.quantity--;
-                            cart.notifyListeners();
-                          } else {
-                            cart.removeItem(item.productId);
-                          }
-                        },
-                        onRemove: () {
+    return cart.items.isEmpty
+        ? const _EmptyCartView()
+        : Column(
+            children: [
+              // Cart Items
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: cart.items.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (ctx, i) {
+                    final item = cart.items[i];
+                    final product = productProvider.products
+                        .firstWhere((p) => p.id == item.productId, orElse: () => null as dynamic);
+
+                    return _buildCartItem(
+                      context,
+                      item: item,
+                      productName: product?.name ?? 'Product ${item.productId}',
+                      onIncrement: () {
+                        cart.addItem(item);
+                      },
+                      onDecrement: () {
+                        if (item.quantity > 1) {
+                          item.quantity--;
+                          cart.notifyListeners();
+                        } else {
                           cart.removeItem(item.productId);
-                        },
-                      );
-                    },
-                  ),
+                        }
+                      },
+                      onRemove: () {
+                        cart.removeItem(item.productId);
+                      },
+                    );
+                  },
                 ),
-                
-                // Checkout Section
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        spreadRadius: 1,
-                        blurRadius: 5,
-                        offset: const Offset(0, -2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Total Items: ${cart.items.length}',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          Text(
-                            'Total: KSh ${cart.total().toStringAsFixed(0)}',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFF2E7D32),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: loading ? null : checkout,
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: loading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                  ),
-                                )
-                              : const Text(
-                                  'Complete Sale',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                        ),
-                      ),
-                      if (message != null) ...[
-                        const SizedBox(height: 12),
+              ),
+
+              // Checkout Section
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 1,
+                      blurRadius: 5,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         Text(
-                          message!,
-                          style: TextStyle(
-                            color: message!.contains('success') ? Colors.green : Colors.red,
-                            fontWeight: FontWeight.w500,
+                          'Total Items: ${cart.items.length}',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        Text(
+                          'Total: KSh ${cart.total().toStringAsFixed(0)}',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF2E7D32),
                           ),
-                          textAlign: TextAlign.center,
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: loading ? null : checkout,
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: loading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : const Text(
+                                'Complete Sale',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                      ),
+                    ),
+                    if (message != null) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        message!,
+                        style: TextStyle(
+                          color: message!.contains('success') ? Colors.green : Colors.red,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ],
-                  ),
+                  ],
                 ),
-              ],
-            ),
-    );
+              ),
+            ],
+          );
   }
 
   Widget _buildCartItem(

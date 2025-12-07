@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/loading_widget.dart';
-import '../home/dashboard_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -19,6 +18,17 @@ class _LoginScreenState extends State<LoginScreen> {
   bool loading = false;
   String? error;
   bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      if (auth.isAuthenticated) {
+        Navigator.pushReplacementNamed(context, '/dashboard');
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -41,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 40),
-                
+
                 // Logo/Icon
                 Container(
                   padding: const EdgeInsets.all(24),
@@ -56,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                
+
                 // Welcome Text
                 Text(
                   'Welcome to AgroVet',
@@ -67,12 +77,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 Text(
                   'Sign in to manage your agrovet business',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                        color: Colors.grey[600],
+                      ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 48),
-                
+
                 // Email Field
                 TextFormField(
                   controller: _email,
@@ -86,14 +96,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
                     }
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                        .hasMatch(value)) {
                       return 'Please enter a valid email';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Password Field
                 TextFormField(
                   controller: _password,
@@ -103,7 +114,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                        _obscurePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                       ),
                       onPressed: () {
                         setState(() {
@@ -124,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 const SizedBox(height: 32),
-                
+
                 // Error Message
                 if (error != null)
                   Container(
@@ -148,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 if (error != null) const SizedBox(height: 16),
-                
+
                 // Login Button
                 ElevatedButton(
                   onPressed: loading ? null : () => _handleLogin(auth),
@@ -164,7 +177,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
                       : const Text(
@@ -176,7 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Register Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -188,7 +202,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     GestureDetector(
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                        MaterialPageRoute(
+                            builder: (_) => const RegisterScreen()),
                       ),
                       child: Text(
                         'Sign Up',
@@ -225,16 +240,14 @@ class _LoginScreenState extends State<LoginScreen> {
         _password.text.trim(),
       );
 
-      if (res.containsKey('token')) {
+      if (res['success'] == true) {
         if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const DashboardScreen()),
-          );
+          Navigator.pushReplacementNamed(context, '/dashboard');
         }
       } else {
         setState(() {
-          error = res['message'] ?? 'Login failed. Please check your credentials.';
+          error =
+              res['message'] ?? 'Login failed. Please check your credentials.';
         });
       }
     } catch (e) {

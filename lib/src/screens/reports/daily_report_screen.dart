@@ -54,89 +54,82 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
   Widget build(BuildContext context) {
     final reportProvider = Provider.of<ReportProvider>(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Daily Sales Report'),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          // Date Selection Card
-          Card(
-            margin: const EdgeInsets.all(16),
-            elevation: 4,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Select Date',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _dateCtrl,
-                          decoration: InputDecoration(
-                            labelText: 'Report Date',
-                            prefixIcon: const Icon(Icons.calendar_today),
-                            suffixIcon: IconButton(
-                              icon: const Icon(Icons.date_range),
-                              onPressed: _selectDate,
-                            ),
-                          ),
-                          readOnly: true,
-                          onTap: _selectDate,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      ElevatedButton.icon(
-                        onPressed: loading
-                            ? null
-                            : () async {
-                                setState(() => loading = true);
-                                await reportProvider
-                                    .fetchDailyReport(_dateCtrl.text.trim());
-                                setState(() => loading = false);
-                              },
-                        icon: loading
-                            ? const SizedBox(
-                                height: 16,
-                                width: 16,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const Icon(Icons.search),
-                        label: const Text('Generate'),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
+    return Column(
+      children: [
+        // Date Selection Card
+        Card(
+          margin: const EdgeInsets.all(16),
+          elevation: 4,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Select Date',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _dateCtrl,
+                        decoration: InputDecoration(
+                          labelText: 'Report Date',
+                          prefixIcon: const Icon(Icons.calendar_today),
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.date_range),
+                            onPressed: _selectDate,
                           ),
                         ),
+                        readOnly: true,
+                        onTap: _selectDate,
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                    const SizedBox(width: 16),
+                    ElevatedButton.icon(
+                      onPressed: loading
+                          ? null
+                          : () async {
+                              setState(() => loading = true);
+                              await reportProvider
+                                  .fetchDailyReport(_dateCtrl.text.trim());
+                              setState(() => loading = false);
+                            },
+                      icon: loading
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.search),
+                      label: const Text('Generate'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
+        ),
 
-          // Report Content
-          Expanded(
-            child: loading
-                ? const LoadingWidget()
-                : reportProvider.dailyReport != null
-                    ? _buildReportContent(reportProvider.dailyReport!)
-                    : const _EmptyReportView(),
-          ),
-        ],
-      ),
+        // Report Content
+        Expanded(
+          child: loading
+              ? const LoadingWidget()
+              : reportProvider.dailyReport != null
+                  ? _buildReportContent(reportProvider.dailyReport!)
+                  : const _EmptyReportView(),
+        ),
+      ],
     );
   }
 

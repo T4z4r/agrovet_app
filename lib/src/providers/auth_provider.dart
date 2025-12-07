@@ -31,10 +31,10 @@ class AuthProvider extends ChangeNotifier {
 
   Future<Map<String, dynamic>> login(String email, String password) async {
     final res = await _service.login(email, password);
-    if (res.containsKey('token')) {
-      await ApiService.saveToken(res['token']);
+    if (res['success'] == true && res.containsKey('data')) {
+      await ApiService.saveToken(res['data']['token']);
       _isAuthenticated = true;
-      user = res['user'];
+      user = res['data']['user'];
       notifyListeners();
     }
     return res;
@@ -43,10 +43,10 @@ class AuthProvider extends ChangeNotifier {
   Future<Map<String, dynamic>> register(
       String name, String email, String password, String role) async {
     final res = await _service.register(name, email, password, role);
-    if (res.containsKey('token')) {
-      await ApiService.saveToken(res['token']);
+    if (res['success'] == true && res.containsKey('data')) {
+      await ApiService.saveToken(res['data']['token']);
       _isAuthenticated = true;
-      user = res['user'];
+      user = res['data']['user'];
       notifyListeners();
     }
     return res;

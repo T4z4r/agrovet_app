@@ -44,4 +44,71 @@ class ProductProvider extends ChangeNotifier {
     loading = false;
     notifyListeners();
   }
+
+  Future<bool> createProduct(Map<String, dynamic> productData) async {
+    try {
+      final res = await _api.post('/products', productData);
+      if (res.statusCode == 201) {
+        final data = jsonDecode(res.body);
+        final newProduct = Product.fromJson(data);
+        _products.add(newProduct);
+        final db = DatabaseHelper();
+        await db.insertProduct(data);
+        notifyListeners();
+        return true;
+      }
+    } catch (e) {
+      // Handle error
+    }
+    return false;
+  }
+
+  Future<Product?> getProduct(int id) async {
+    try {
+      final res = await _api.get('/products/$id');
+      if (res.statusCode == 200) {
+        return Product.fromJson(jsonDecode(res.body));
+      }
+    } catch (e) {
+      // Handle error
+    }
+    return null;
+  }
+
+  Future<bool> updateProduct(int id, Map<String, dynamic> productData) async {
+    try {
+      final res = await _api.put('/products/$id', productData);
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        final updatedProduct = Product.fromJson(data);
+        final index = _products.indexWhere((p) => p.id == id);
+        if (index >= 0) {
+          _products[index] = updatedProduct;
+          final db = DatabaseHelper();
+          await db.updateProduct(id, data);
+          notifyListeners();
+        }
+        return true;
+      }
+    } catch (e) {
+      // Handle error
+    }
+    return false;
+  }
+
+  Future<bool> deleteProduct(int id) async {
+    try {
+      final res = await _api.delete('/products/$id');
+      if (res.statusCode == 200) {
+        _products.removeWhere((p) => p.id == id);
+        final db = DatabaseHelper();
+        await db.deleteProduct(id);
+        notifyListeners();
+        return true;
+      }
+    } catch (e) {
+      // Handle error
+    }
+    return false;
+  }
 }

@@ -1,0 +1,91 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import '../models/supplier.dart';
+import '../services/api_service.dart';
+
+class SupplierProvider extends ChangeNotifier {
+  final ApiService _api = ApiService();
+  List<Supplier> _suppliers = [];
+  bool loading = false;
+
+  List<Supplier> get suppliers => _suppliers;
+
+  Future<void> fetchSuppliers() async {
+    loading = true;
+    notifyListeners();
+
+    try {
+      final res = await _api.get('/suppliers');
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body) as List;
+        _suppliers = data.map((e) => Supplier.fromJson(e)).toList();
+      }
+    } catch (e) {
+      // Handle error
+    }
+
+    loading = false;
+    notifyListeners();
+  }
+
+  Future<bool> createSupplier(Map<String, dynamic> supplierData) async {
+    try {
+      final res = await _api.post('/suppliers', supplierData);
+      if (res.statusCode == 201) {
+        final data = jsonDecode(res.body);
+        final newSupplier = Supplier.fromJson(data);
+        _suppliers.add(newSupplier);
+        notifyListeners();
+        return true;
+      }
+    } catch (e) {
+      // Handle error
+    }
+    return false;
+  }
+
+  Future<Supplier?> getSupplier(int id) async {
+    try {
+      final res = await _api.get('/suppliers/$id');
+      if (res.statusCode == 200) {
+        return Supplier.fromJson(jsonDecode(res.body));
+      }
+    } catch (e) {
+      // Handle error
+    }
+    return null;
+  }
+
+  Future<bool> updateSupplier(int id, Map<String, dynamic> supplierData) async {
+    try {
+      final res = await _api.put('/suppliers/$id', supplierData);
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        final updatedSupplier = Supplier.fromJson(data);
+        final index = _suppliers.indexWhere((s) => s.id == id);
+        if (index >= 0) {
+          _suppliers[index] = updatedSupplier;
+          notifyListeners();
+        }
+        return true;
+      }
+    } catch (e) {
+      // Handle error
+    }
+    return false;
+  }
+
+  Future<bool> deleteSupplier(int id) async {
+    try {
+      final res = await _api.delete('/suppliers/$id');
+      if (res.statusCode == 200) {
+        _suppliers.removeWhere((s) => s.id == id);
+        notifyListeners();
+        return true;
+      }
+    } catch (e) {
+      // Handle error
+    }
+    return false;
+  }
+}

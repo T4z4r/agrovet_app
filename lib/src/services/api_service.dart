@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   final String baseUrl = 'http://agrovet.sudsudgroup.com/api';
-  // dotenv.env['API_BASE_URL'] ?? '';
 
   Future<String?> _getToken() async {
     final sp = await SharedPreferences.getInstance();

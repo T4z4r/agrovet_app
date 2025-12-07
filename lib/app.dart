@@ -4,6 +4,10 @@ import 'src/providers/auth_provider.dart';
 import 'src/providers/product_provider.dart';
 import 'src/providers/cart_provider.dart';
 import 'src/providers/report_provider.dart';
+import 'src/providers/supplier_provider.dart';
+import 'src/providers/stock_provider.dart';
+import 'src/providers/expense_provider.dart';
+import 'src/providers/sales_provider.dart';
 import 'src/screens/auth/login_screen.dart';
 import 'src/screens/home/dashboard_screen.dart';
 
@@ -19,6 +23,12 @@ class AgrovetApp extends StatelessWidget {
             create: (_) => ProductProvider()),
         ChangeNotifierProvider<CartProvider>(create: (_) => CartProvider()),
         ChangeNotifierProvider<ReportProvider>(create: (_) => ReportProvider()),
+        ChangeNotifierProvider<SupplierProvider>(
+            create: (_) => SupplierProvider()),
+        ChangeNotifierProvider<StockProvider>(create: (_) => StockProvider()),
+        ChangeNotifierProvider<ExpenseProvider>(
+            create: (_) => ExpenseProvider()),
+        ChangeNotifierProvider<SalesProvider>(create: (_) => SalesProvider()),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, auth, _) {

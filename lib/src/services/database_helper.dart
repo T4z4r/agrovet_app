@@ -52,7 +52,15 @@ class DatabaseHelper {
   // Products methods
   Future<void> insertProduct(Map<String, dynamic> product) async {
     final db = await database;
-    await db.insert('products', product,
+    final filteredProduct = {
+      'id': product['id'],
+      'name': product['name'],
+      'unit': product['unit'],
+      'stock': product['stock'],
+      'cost_price': product['cost_price'],
+      'selling_price': product['selling_price'],
+    };
+    await db.insert('products', filteredProduct,
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
@@ -63,7 +71,15 @@ class DatabaseHelper {
 
   Future<void> updateProduct(int id, Map<String, dynamic> product) async {
     final db = await database;
-    await db.update('products', product, where: 'id = ?', whereArgs: [id]);
+    final filteredProduct = {
+      'name': product['name'],
+      'unit': product['unit'],
+      'stock': product['stock'],
+      'cost_price': product['cost_price'],
+      'selling_price': product['selling_price'],
+    };
+    await db
+        .update('products', filteredProduct, where: 'id = ?', whereArgs: [id]);
   }
 
   Future<void> deleteProduct(int id) async {
@@ -95,7 +111,8 @@ class DatabaseHelper {
 
   Future<void> deleteCartItemByProductId(int productId) async {
     final db = await database;
-    await db.delete('cart_items', where: 'product_id = ?', whereArgs: [productId]);
+    await db
+        .delete('cart_items', where: 'product_id = ?', whereArgs: [productId]);
   }
 
   Future<void> clearCart() async {

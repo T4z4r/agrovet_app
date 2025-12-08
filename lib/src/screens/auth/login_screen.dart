@@ -91,6 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     labelText: 'Email Address',
                     prefixIcon: const Icon(Icons.email_outlined),
                     hintText: 'Enter your email',
+                    helperText: 'Use your registered email address',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -98,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     }
                     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
                         .hasMatch(value)) {
-                      return 'Please enter a valid email';
+                      return 'Please enter a valid email address';
                     }
                     return null;
                   },
@@ -123,15 +124,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           _obscurePassword = !_obscurePassword;
                         });
                       },
+                      tooltip:
+                          _obscurePassword ? 'Show password' : 'Hide password',
                     ),
                     hintText: 'Enter your password',
+                    helperText: 'Minimum 6 characters required',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
                     }
                     if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return 'Password must be at least 6 characters long';
                     }
                     return null;
                   },
@@ -152,9 +156,50 @@ class _LoginScreenState extends State<LoginScreen> {
                         Icon(Icons.error_outline, color: Colors.red.shade700),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: Text(
-                            error!,
-                            style: TextStyle(color: Colors.red.shade700),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Login Error',
+                                style: TextStyle(
+                                  color: Colors.red.shade700,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                error!,
+                                style: TextStyle(
+                                  color: Colors.red.shade700,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              if (error!.contains('credentials') || error!.contains('invalid'))
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Text(
+                                    'Forgot password? Contact support@agrovet.com for assistance.',
+                                    style: TextStyle(
+                                      color: Colors.red.shade600,
+                                      fontSize: 12,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ),
+                              if (error!.contains('connection') || error!.contains('network'))
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Text(
+                                    'Check your internet connection and try again.',
+                                    style: TextStyle(
+                                      color: Colors.red.shade600,
+                                      fontSize: 12,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                       ],
@@ -246,13 +291,28 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       } else {
         setState(() {
-          error =
-              res['message'] ?? 'Login failed. Please check your credentials.';
+          if (res['message'] != null && res['message'].toLowerCase().contains('invalid')) {
+            error = 'Invalid email or password. Please try again.';
+          } else if (res['message'] != null && res['message'].toLowerCase().contains('not found')) {
+            error = 'User not found. Please check your email or register.';
+          } else if (res['message'] != null && res['message'].toLowerCase().contains('disabled')) {
+            error = 'Account disabled. Please contact support.';
+          } else {
+            error = res['message'] ?? 'Login failed. Please check your credentials and try again.';
+          }
         });
       }
     } catch (e) {
       setState(() {
-        error = 'An error occurred. Please try again.';
+        if (e.toString().contains('timeout')) {
+          error = 'Connection timeout. Please check your internet connection.';
+        } else if (e.toString().contains('socket')) {
+          error = 'Network error. Please check your internet connection.';
+        } else if (e.toString().contains('format')) {
+          error = 'Server error. Please try again later.';
+        } else {
+          error = 'An unexpected error occurred. Please try again later.';
+        }
       });
     } finally {
       if (mounted) {

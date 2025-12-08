@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/report_provider.dart';
 import '../../widgets/loading_widget.dart';
+import '../../widgets/app_drawer.dart';
 import 'package:intl/intl.dart';
 
 class DailyReportScreen extends StatefulWidget {
@@ -67,9 +68,22 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Select Date',
-                  style: Theme.of(context).textTheme.titleLarge,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Select Date',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    Tooltip(
+                      message: 'Choose a date to generate sales report',
+                      child: Icon(
+                        Icons.info_outline,
+                        color: Colors.grey[600],
+                        size: 20,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -83,6 +97,7 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.date_range),
                             onPressed: _selectDate,
+                            tooltip: 'Select date from calendar',
                           ),
                         ),
                         readOnly: true,
@@ -90,27 +105,30 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    ElevatedButton.icon(
-                      onPressed: loading
-                          ? null
-                          : () async {
-                              setState(() => loading = true);
-                              await reportProvider
-                                  .fetchDailyReport(_dateCtrl.text.trim());
-                              setState(() => loading = false);
-                            },
-                      icon: loading
-                          ? const SizedBox(
-                              height: 16,
-                              width: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.search),
-                      label: const Text('Generate'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
+                    Tooltip(
+                      message: 'Generate report for the selected date',
+                      child: ElevatedButton.icon(
+                        onPressed: loading
+                            ? null
+                            : () async {
+                                setState(() => loading = true);
+                                await reportProvider
+                                    .fetchDailyReport(_dateCtrl.text.trim());
+                                setState(() => loading = false);
+                              },
+                        icon: loading
+                            ? const SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.search),
+                        label: const Text('Generate'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
                         ),
                       ),
                     ),
@@ -343,6 +361,48 @@ class _EmptyReportView extends StatelessWidget {
                   color: Colors.grey[500],
                 ),
             textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Text(
+                    'How to generate reports:',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today, color: Colors.grey[600], size: 20),
+                      const SizedBox(width: 8),
+                      Text('1. Select a date'),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.search, color: Colors.grey[600], size: 20),
+                      const SizedBox(width: 8),
+                      Text('2. Click Generate button'),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.analytics, color: Colors.grey[600], size: 20),
+                      const SizedBox(width: 8),
+                      Text('3. View your sales report'),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),

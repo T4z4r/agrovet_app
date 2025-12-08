@@ -90,53 +90,71 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 24),
 
           // Quick Actions
-          Text(
-            'Quick Actions',
-            style: Theme.of(context).textTheme.headlineMedium,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Quick Actions',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              Tooltip(
+                message: 'Quick access to main features of the app',
+                child: Icon(
+                  Icons.info_outline,
+                  color: Colors.grey[600],
+                  size: 20,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
 
-          GridView.count(
-            crossAxisCount: 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            childAspectRatio: 1.2,
-            children: [
-              _buildActionCard(
-                context,
-                icon: Icons.store,
-                title: 'Products',
-                subtitle: 'View & Manage',
-                color: const Color(0xFF2196F3),
-                onTap: () => Navigator.pushNamed(context, '/products'),
-              ),
-              _buildActionCard(
-                context,
-                icon: Icons.shopping_cart,
-                title: 'Cart',
-                subtitle: '${cart.items.length} items',
-                color: const Color(0xFFFF9800),
-                onTap: () => Navigator.pushNamed(context, '/cart'),
-              ),
-              _buildActionCard(
-                context,
-                icon: Icons.pie_chart,
-                title: 'Reports',
-                subtitle: 'Daily Sales',
-                color: const Color(0xFF9C27B0),
-                onTap: () => Navigator.pushNamed(context, '/reports'),
-              ),
-              _buildActionCard(
-                context,
-                icon: Icons.analytics,
-                title: 'Analytics',
-                subtitle: 'Coming Soon',
-                color: const Color(0xFF607D8B),
-                onTap: () {},
-              ),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
+              return GridView.count(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                childAspectRatio: crossAxisCount > 2 ? 1.0 : 1.2,
+                children: [
+                  _buildActionCard(
+                    context,
+                    icon: Icons.store,
+                    title: 'Products',
+                    subtitle: 'View & Manage',
+                    color: const Color(0xFF2196F3),
+                    onTap: () => Navigator.pushNamed(context, '/products'),
+                  ),
+                  _buildActionCard(
+                    context,
+                    icon: Icons.shopping_cart,
+                    title: 'Cart',
+                    subtitle: '${cart.items.length} items',
+                    color: const Color(0xFFFF9800),
+                    onTap: () => Navigator.pushNamed(context, '/cart'),
+                  ),
+                  _buildActionCard(
+                    context,
+                    icon: Icons.pie_chart,
+                    title: 'Reports',
+                    subtitle: 'Daily Sales',
+                    color: const Color(0xFF9C27B0),
+                    onTap: () => Navigator.pushNamed(context, '/reports'),
+                  ),
+                  _buildActionCard(
+                    context,
+                    icon: Icons.analytics,
+                    title: 'Analytics',
+                    subtitle: 'Coming Soon',
+                    color: const Color(0xFF607D8B),
+                    onTap: () {},
+                  ),
+                ],
+              );
+            },
           ),
 
           const SizedBox(height: 24),

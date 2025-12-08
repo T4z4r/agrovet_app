@@ -5,6 +5,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../services/api_service.dart';
 import '../../widgets/loading_widget.dart';
+import '../../widgets/app_drawer.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -20,7 +21,7 @@ class _CartScreenState extends State<CartScreen> {
   Future<void> checkout() async {
     final cart = Provider.of<CartProvider>(context, listen: false);
     final auth = Provider.of<AuthProvider>(context, listen: false);
-    
+
     if (cart.items.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -46,20 +47,39 @@ class _CartScreenState extends State<CartScreen> {
 
     try {
       final res = await api.post('/sales', body);
-      
+
       if (res.statusCode == 201 || res.statusCode == 200) {
         cart.clear();
         setState(() {
           message = 'Sale recorded successfully!';
         });
-        
+
         // Show success dialog
         if (mounted) {
           showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
               title: const Text('Success!'),
-              content: const Text('Your sale has been recorded successfully.'),
+              content: const Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    color: Colors.green,
+                    size: 48,
+                  ),
+                  SizedBox(height: 16),
+                  Text('Your sale has been recorded successfully.'),
+                  SizedBox(height: 8),
+                  Text(
+                    'Thank you for using AgroVet!',
+                    style: TextStyle(
+                      fontStyle: FontStyle.italic,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(),
@@ -71,12 +91,13 @@ class _CartScreenState extends State<CartScreen> {
         }
       } else {
         setState(() {
-          message = 'Sale failed: ${res.body}';
+          message = 'Sale failed: ${res.body}. Please try again.';
         });
       }
     } catch (e) {
       setState(() {
-        message = 'Error: ${e.toString()}';
+        message =
+            'Network error occurred. Please check your connection and try again.';
       });
     } finally {
       setState(() {
@@ -103,7 +124,11 @@ class _CartScreenState extends State<CartScreen> {
                   itemBuilder: (ctx, i) {
                     final item = cart.items[i];
                     final product = productProvider.products
-                        .firstWhere((p) => p.id == item.productId, orElse: () => null as dynamic);
+                            .where((p) => p.id == item.productId)
+                            .isNotEmpty
+                        ? productProvider.products
+                            .firstWhere((p) => p.id == item.productId)
+                        : null;
 
                     return _buildCartItem(
                       context,
@@ -144,21 +169,51 @@ class _CartScreenState extends State<CartScreen> {
                 ),
                 child: Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Total Items: ${cart.items.length}',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        Text(
-                          'Total: KSh ${cart.total().toStringAsFixed(0)}',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF2E7D32),
-                          ),
-                        ),
-                      ],
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        if (constraints.maxWidth > 600) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Total Items: ${cart.items.length}',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              Text(
+                                'Total: KSh ${cart.total().toStringAsFixed(0)}',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF2E7D32),
+                                    ),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Total Items: ${cart.items.length}',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Total: KSh ${cart.total().toStringAsFixed(0)}',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF2E7D32),
+                                    ),
+                              ),
+                            ],
+                          );
+                        }
+                      },
                     ),
                     const SizedBox(height: 16),
                     SizedBox(
@@ -177,7 +232,8 @@ class _CartScreenState extends State<CartScreen> {
                                 width: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
                                 ),
                               )
                             : const Text(
@@ -191,13 +247,47 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                     if (message != null) ...[
                       const SizedBox(height: 12),
-                      Text(
-                        message!,
-                        style: TextStyle(
-                          color: message!.contains('success') ? Colors.green : Colors.red,
-                          fontWeight: FontWeight.w500,
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: message!.contains('success')
+                              ? Colors.green.shade50
+                              : Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: message!.contains('success')
+                                ? Colors.green.shade200
+                                : Colors.red.shade200,
+                          ),
                         ),
-                        textAlign: TextAlign.center,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              message!.contains('success')
+                                  ? Icons.check_circle
+                                  : Icons.error_outline,
+                              color: message!.contains('success')
+                                  ? Colors.green.shade700
+                                  : Colors.red.shade700,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                message!,
+                                style: TextStyle(
+                                  color: message!.contains('success')
+                                      ? Colors.green.shade700
+                                      : Colors.red.shade700,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ],
@@ -236,7 +326,7 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ),
             const SizedBox(width: 16),
-            
+
             // Product Info
             Expanded(
               child: Column(
@@ -245,8 +335,8 @@ class _CartScreenState extends State<CartScreen> {
                   Text(
                     productName,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                          fontWeight: FontWeight.w600,
+                        ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -254,13 +344,13 @@ class _CartScreenState extends State<CartScreen> {
                   Text(
                     'KSh ${item.price.toStringAsFixed(0)} each',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[600],
-                    ),
+                          color: Colors.grey[600],
+                        ),
                   ),
                 ],
               ),
             ),
-            
+
             // Quantity Controls
             Column(
               mainAxisSize: MainAxisSize.min,
@@ -277,7 +367,8 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 4),
                       decoration: BoxDecoration(
                         color: const Color(0xFF2E7D32),
                         borderRadius: BorderRadius.circular(16),
@@ -304,9 +395,9 @@ class _CartScreenState extends State<CartScreen> {
                 Text(
                   'KSh ${(item.price * item.quantity).toStringAsFixed(0)}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF2E7D32),
-                  ),
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF2E7D32),
+                      ),
                 ),
                 IconButton(
                   onPressed: onRemove,
@@ -343,15 +434,15 @@ class _EmptyCartView extends StatelessWidget {
           Text(
             'Your cart is empty',
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              color: Colors.grey[600],
-            ),
+                  color: Colors.grey[600],
+                ),
           ),
           const SizedBox(height: 8),
           Text(
             'Add some products to get started',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Colors.grey[500],
-            ),
+                  color: Colors.grey[500],
+                ),
           ),
           const SizedBox(height: 32),
           ElevatedButton.icon(

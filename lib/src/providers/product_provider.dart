@@ -48,14 +48,17 @@ class ProductProvider extends ChangeNotifier {
   Future<bool> createProduct(Map<String, dynamic> productData) async {
     try {
       final res = await _api.post('/products', productData);
-      if (res.statusCode == 201) {
-        final data = jsonDecode(res.body);
-        final newProduct = Product.fromJson(data);
-        _products.add(newProduct);
-        final db = DatabaseHelper();
-        await db.insertProduct(data);
-        notifyListeners();
-        return true;
+      if (res.statusCode == 200) {
+        final responseData = jsonDecode(res.body);
+        if (responseData['success'] == true) {
+          final productJson = responseData['data'];
+          final newProduct = Product.fromJson(productJson);
+          _products.add(newProduct);
+          final db = DatabaseHelper();
+          await db.insertProduct(productJson);
+          notifyListeners();
+          return true;
+        }
       }
     } catch (e) {
       // Handle error
@@ -79,16 +82,19 @@ class ProductProvider extends ChangeNotifier {
     try {
       final res = await _api.put('/products/$id', productData);
       if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        final updatedProduct = Product.fromJson(data);
-        final index = _products.indexWhere((p) => p.id == id);
-        if (index >= 0) {
-          _products[index] = updatedProduct;
-          final db = DatabaseHelper();
-          await db.updateProduct(id, data);
-          notifyListeners();
+        final responseData = jsonDecode(res.body);
+        if (responseData['success'] == true) {
+          final productJson = responseData['data'];
+          final updatedProduct = Product.fromJson(productJson);
+          final index = _products.indexWhere((p) => p.id == id);
+          if (index >= 0) {
+            _products[index] = updatedProduct;
+            final db = DatabaseHelper();
+            await db.updateProduct(id, productJson);
+            notifyListeners();
+          }
+          return true;
         }
-        return true;
       }
     } catch (e) {
       // Handle error

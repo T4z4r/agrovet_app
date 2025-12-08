@@ -12,6 +12,7 @@ import 'src/screens/auth/login_screen.dart';
 import 'src/screens/main_navigation_screen.dart';
 import 'src/screens/home/dashboard_screen.dart';
 import 'src/screens/products/products_screen.dart';
+import 'src/screens/products/product_form_screen.dart';
 import 'src/screens/sales/cart_screen.dart';
 import 'src/screens/reports/daily_report_screen.dart';
 
@@ -44,6 +45,11 @@ class AgrovetApp extends StatelessWidget {
           '/products': (context) => const ProductsScreen(),
           '/cart': (context) => const CartScreen(),
           '/reports': (context) => const DailyReportScreen(),
+          '/product-form': (context) => const ProductFormScreen(),
+          '/analytics': (context) => const DailyReportScreen(), // Placeholder for analytics
+          '/settings': (context) => const DailyReportScreen(), // Placeholder for settings
+          '/help': (context) => const DailyReportScreen(), // Placeholder for help
+          '/about': (context) => const DailyReportScreen(), // Placeholder for about
         },
         debugShowCheckedModeBanner: false,
       ),

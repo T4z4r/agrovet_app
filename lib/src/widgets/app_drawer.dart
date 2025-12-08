@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import '../screens/home/dashboard_screen.dart';
-import '../screens/products/products_screen.dart';
-import '../screens/sales/cart_screen.dart';
-import '../screens/reports/daily_report_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -101,6 +97,18 @@ class AppDrawer extends StatelessWidget {
                   currentRoute: currentRoute,
                   onTap: () => _navigateTo(context, '/reports'),
                 ),
+                _buildDrawerItem(
+                  context,
+                  icon: Icons.analytics,
+                  title: 'Sales Analytics',
+                  route: '/analytics',
+                  currentRoute: currentRoute,
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Sales Analytics coming soon!')),
+                    );
+                  },
+                ),
                 const Divider(),
                 _buildDrawerItem(
                   context,
@@ -116,27 +124,19 @@ class AppDrawer extends StatelessWidget {
                 ),
                 _buildDrawerItem(
                   context,
+                  icon: Icons.help_outline,
+                  title: 'Help & Support',
+                  route: '/help',
+                  currentRoute: currentRoute,
+                  onTap: () => _showHelpDialog(context),
+                ),
+                _buildDrawerItem(
+                  context,
                   icon: Icons.info,
                   title: 'About',
                   route: '/about',
                   currentRoute: currentRoute,
-                  onTap: () {
-                    showAboutDialog(
-                      context: context,
-                      applicationName: 'AgroVet',
-                      applicationVersion: '1.0.0',
-                      applicationIcon: const Icon(
-                        Icons.agriculture,
-                        size: 48,
-                        color: Color(0xFF2E7D32),
-                      ),
-                      children: [
-                        const Text(
-                          'A comprehensive agrovet management system for managing products, sales, and reports.',
-                        ),
-                      ],
-                    );
-                  },
+                  onTap: () => _showAboutDialog(context),
                 ),
               ],
             ),
@@ -256,6 +256,98 @@ class AppDrawer extends StatelessWidget {
               'Logout',
               style: TextStyle(color: Colors.red),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showHelpDialog(BuildContext context) {
+    Navigator.of(context).pop(); // Close drawer first
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Help & Support'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Need help with AgroVet?'),
+            SizedBox(height: 16),
+            Text('• Contact our support team: support@agrovet.com'),
+            Text('• Phone: +254 700 123456'),
+            Text('• Working hours: Mon-Fri, 8AM-5PM'),
+            SizedBox(height: 16),
+            Text('For immediate assistance, please check our FAQ section in the app.'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAboutDialog(BuildContext context) {
+    Navigator.of(context).pop(); // Close drawer first
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('About AgroVet'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Center(
+                child: Icon(
+                  Icons.agriculture,
+                  size: 48,
+                  color: Color(0xFF2E7D32),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'AgroVet Management System',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              const Text('Version 1.0.0'),
+              const SizedBox(height: 16),
+              const Text(
+                'A comprehensive agrovet management system for managing products, sales, and reports.',
+                textAlign: TextAlign.justify,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Features:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              const Text('• Product inventory management'),
+              const Text('• Sales processing and tracking'),
+              const Text('• Daily sales reports'),
+              const Text('• User authentication'),
+              const SizedBox(height: 16),
+              const Text(
+                '© 2025 AgroVet Solutions. All rights reserved.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('OK'),
           ),
         ],
       ),

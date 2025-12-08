@@ -41,9 +41,11 @@ class AuthProvider extends ChangeNotifier {
       _isAuthenticated = true;
       user = await _loadUser();
       try {
-        final freshUser = await _service.me();
-        user = freshUser;
-        await _saveUser(freshUser);
+        final res = await _service.me();
+        if (res['success'] == true && res.containsKey('data')) {
+          user = res['data'];
+          await _saveUser(user!);
+        }
       } catch (_) {
         // Keep the cached user if API fails
       }

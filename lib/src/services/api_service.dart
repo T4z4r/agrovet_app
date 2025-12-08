@@ -4,7 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  final String baseUrl = 'https://agrovet.sudsudgroup.com/api';
+  final String baseUrl = 'http://agrovet.sudsudgroup.com/api';
 
   Future<String?> _getToken() async {
     final sp = await SharedPreferences.getInstance();

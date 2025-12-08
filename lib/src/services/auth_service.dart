@@ -7,12 +7,7 @@ class AuthService {
   Future<Map<String, dynamic>> login(String email, String password) async {
     final res = await api.post('/login', {'email': email, 'password': password},
         auth: false);
-    final responseData = jsonDecode(res.body) as Map<String, dynamic>;
-    if (responseData['success'] == true) {
-      return responseData['data'] as Map<String, dynamic>;
-    } else {
-      throw Exception(responseData['message'] ?? 'Login failed');
-    }
+    return jsonDecode(res.body) as Map<String, dynamic>;
   }
 
   Future<Map<String, dynamic>> register(
@@ -27,12 +22,7 @@ class AuthService {
           'role': role,
         },
         auth: false);
-    final responseData = jsonDecode(res.body) as Map<String, dynamic>;
-    if (responseData['success'] == true) {
-      return responseData['data'] as Map<String, dynamic>;
-    } else {
-      throw Exception(responseData['message'] ?? 'Registration failed');
-    }
+    return jsonDecode(res.body) as Map<String, dynamic>;
   }
 
   Future<void> logout() async {
@@ -47,11 +37,6 @@ class AuthService {
 
   Future<Map<String, dynamic>> me() async {
     final res = await api.get('/me');
-    final responseData = jsonDecode(res.body) as Map<String, dynamic>;
-    if (responseData['success'] == true) {
-      return responseData['data'] as Map<String, dynamic>;
-    } else {
-      throw Exception(responseData['message'] ?? 'Failed to get user data');
-    }
+    return jsonDecode(res.body) as Map<String, dynamic>;
   }
 }

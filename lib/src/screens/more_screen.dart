@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../providers/product_provider.dart';
 import '../providers/sales_provider.dart';
 import '../services/connectivity_service.dart';
@@ -18,13 +19,15 @@ class _MoreScreenState extends State<MoreScreen> {
   @override
   Widget build(BuildContext context) {
     final connectivity = Provider.of<ConnectivityService>(context);
-    final productProvider = Provider.of<ProductProvider>(context, listen: false);
+    final productProvider =
+        Provider.of<ProductProvider>(context, listen: false);
     final salesProvider = Provider.of<SalesProvider>(context, listen: false);
 
     return ListView(
       children: [
         ListTile(
-          leading: const Icon(Icons.add_shopping_cart, color: Color(0xFF2E7D32)),
+          leading:
+              const Icon(Icons.add_shopping_cart, color: Color(0xFF2E7D32)),
           title: const Text('Add Product'),
           subtitle: const Text('Add a new product to inventory'),
           onTap: () => Navigator.pushNamed(context, '/product-form'),
@@ -38,7 +41,8 @@ class _MoreScreenState extends State<MoreScreen> {
         ListTile(
           leading: Icon(
             Icons.sync,
-            color: connectivity.isOnline ? const Color(0xFF2E7D32) : Colors.grey,
+            color:
+                connectivity.isOnline ? const Color(0xFF2E7D32) : Colors.grey,
           ),
           title: const Text('Sync Data'),
           subtitle: Text(
@@ -86,6 +90,13 @@ class _MoreScreenState extends State<MoreScreen> {
               applicationLegalese: '© 2024 AgroVet',
             );
           },
+        ),
+        const Divider(),
+        ListTile(
+          leading: const Icon(Icons.logout, color: Colors.red),
+          title: const Text('Logout'),
+          subtitle: const Text('Sign out of your account'),
+          onTap: () => _showLogoutDialog(context),
         ),
         ListTile(
           leading: const Icon(Icons.help, color: Color(0xFF2E7D32)),
@@ -174,7 +185,8 @@ class _MoreScreenState extends State<MoreScreen> {
   Future<void> _cleanDatabase(BuildContext context) async {
     try {
       final db = DatabaseHelper();
-      final productProvider = Provider.of<ProductProvider>(context, listen: false);
+      final productProvider =
+          Provider.of<ProductProvider>(context, listen: false);
       final salesProvider = Provider.of<SalesProvider>(context, listen: false);
 
       // Clear all local data
@@ -197,6 +209,62 @@ class _MoreScreenState extends State<MoreScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to clean database: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text(
+            'Are you sure you want to logout? You will need to login again to access your data.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _logout(context);
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    // Pop any open dialogs to ensure context is valid
+    Navigator.of(context).popUntil((route) => route.isFirst);
+
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+      // Perform logout
+      await authProvider.logout();
+
+      if (mounted) {
+        // Navigate to login screen and clear navigation stack
+        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logout failed: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );

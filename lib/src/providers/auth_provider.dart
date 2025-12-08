@@ -15,15 +15,37 @@ class AuthProvider extends ChangeNotifier {
     _loadFromStorage();
   }
 
+  Future<void> _saveUser(Map<String, dynamic> userData) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setString('user', jsonEncode(userData));
+  }
+
+  Future<Map<String, dynamic>?> _loadUser() async {
+    final sp = await SharedPreferences.getInstance();
+    final userJson = sp.getString('user');
+    if (userJson != null) {
+      return jsonDecode(userJson) as Map<String, dynamic>;
+    }
+    return null;
+  }
+
+  Future<void> _clearUser() async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.remove('user');
+  }
+
   Future<void> _loadFromStorage() async {
     final sp = await SharedPreferences.getInstance();
     final token = sp.getString('token');
     if (token != null) {
       _isAuthenticated = true;
+      user = await _loadUser();
       try {
-        user = await _service.me();
+        final freshUser = await _service.me();
+        user = freshUser;
+        await _saveUser(freshUser);
       } catch (_) {
-        user = null;
+        // Keep the cached user if API fails
       }
     }
     notifyListeners();
@@ -35,6 +57,7 @@ class AuthProvider extends ChangeNotifier {
       await ApiService.saveToken(res['data']['token']);
       _isAuthenticated = true;
       user = res['data']['user'];
+      await _saveUser(user!);
       notifyListeners();
     }
     return res;
@@ -47,6 +70,7 @@ class AuthProvider extends ChangeNotifier {
       await ApiService.saveToken(res['data']['token']);
       _isAuthenticated = true;
       user = res['data']['user'];
+      await _saveUser(user!);
       notifyListeners();
     }
     return res;
@@ -56,6 +80,7 @@ class AuthProvider extends ChangeNotifier {
     await _service.logout();
     _isAuthenticated = false;
     user = null;
+    await _clearUser();
     notifyListeners();
   }
 }

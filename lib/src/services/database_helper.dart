@@ -22,8 +22,9 @@ class DatabaseHelper {
     String path = join(documentsDirectory.path, 'agrovet.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -68,6 +69,32 @@ class DatabaseHelper {
         FOREIGN KEY (sale_id) REFERENCES sales (id)
       )
     ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Add sales tables for version 2
+      await db.execute('''
+        CREATE TABLE sales (
+          id INTEGER PRIMARY KEY,
+          seller_id INTEGER,
+          sale_date TEXT,
+          total_amount REAL,
+          synced INTEGER DEFAULT 0
+        )
+      ''');
+
+      await db.execute('''
+        CREATE TABLE sale_items (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          sale_id INTEGER,
+          product_id INTEGER,
+          quantity INTEGER,
+          price REAL,
+          FOREIGN KEY (sale_id) REFERENCES sales (id)
+        )
+      ''');
+    }
   }
 
   // Products methods

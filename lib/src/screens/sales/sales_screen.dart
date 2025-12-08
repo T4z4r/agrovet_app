@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../providers/sales_provider.dart';
 import '../../widgets/loading_widget.dart';
 
@@ -11,193 +12,136 @@ class SalesScreen extends StatefulWidget {
 }
 
 class _SalesScreenState extends State<SalesScreen> {
-  String searchQuery = '';
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final prov = Provider.of<SalesProvider>(context, listen: false);
-      prov.fetchSales();
+      context.read<SalesProvider>().fetchSales();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final prov = Provider.of<SalesProvider>(context);
+    final salesProvider = context.watch<SalesProvider>();
 
-    return prov.loading
-        ? const LoadingWidget()
-        : Column(
-            children: [
-              // Search Bar
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search sales...',
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: Tooltip(
-                      message: 'Search by sale ID or date',
-                      child: Icon(
-                        Icons.info_outline,
-                        color: Colors.grey[400],
-                        size: 20,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Sales History'),
+        backgroundColor: const Color(0xFF2E7D32),
+        foregroundColor: Colors.white,
+      ),
+      body: salesProvider.loading
+          ? const LoadingWidget()
+          : salesProvider.sales.isEmpty
+              ? const Center(
+                  child: Text('No sales found'),
+                )
+              : ListView.builder(
+                  itemCount: salesProvider.sales.length,
+                  itemBuilder: (context, index) {
+                    final sale = salesProvider.sales[index];
+                    final totalAmount = sale.items.fold<double>(
+                      0,
+                      (sum, item) => sum + (item.quantity * item.price),
+                    );
+
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
                       ),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      searchQuery = value;
-                    });
-                  },
-                ),
-              ),
-
-              // Sales List
-              Expanded(
-                child: prov.sales.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                      child: ExpansionTile(
+                        title: Text('Sale #${sale.id}'),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              Icons.receipt_long_outlined,
-                              size: 80,
-                              color: Colors.grey[400],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No sales found',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineMedium
-                                  ?.copyWith(
-                                    color: Colors.grey[600],
-                                  ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Sales will appear here once transactions are made',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.copyWith(
-                                    color: Colors.grey[500],
-                                  ),
-                              textAlign: TextAlign.center,
-                            ),
+                            Text('Date: ${DateFormat('yyyy-MM-dd').format(DateTime.parse(sale.saleDate))}'),
+                            Text('Seller ID: ${sale.sellerId}'),
+                            Text('Total: ${NumberFormat.currency(symbol: 'KES ').format(totalAmount)}'),
                           ],
                         ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: prov.sales.length,
-                        itemBuilder: (ctx, i) {
-                          final sale = prov.sales[i];
-                          if (searchQuery.isNotEmpty &&
-                              !sale.id.toString().contains(searchQuery) &&
-                              !sale.saleDate.contains(searchQuery)) {
-                            return const SizedBox.shrink();
-                          }
-
-                          return _buildSaleCard(context, sale: sale);
-                        },
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Items:',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: 8),
+                                ...sale.items.map((item) => Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 4),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('Product ${item.productId}'),
+                                      Text('Qty: ${item.quantity}'),
+                                      Text('${NumberFormat.currency(symbol: 'KES ').format(item.price)}'),
+                                      Text('${NumberFormat.currency(symbol: 'KES ').format(item.quantity * item.price)}'),
+                                    ],
+                                  ),
+                                )),
+                                const Divider(),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'Total:',
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    Text(
+                                      NumberFormat.currency(symbol: 'KES ').format(totalAmount),
+                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton.icon(
+                                  onPressed: () => _downloadReceipt(sale.id),
+                                  icon: const Icon(Icons.download),
+                                  label: const Text('Download Receipt'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF2E7D32),
+                                    foregroundColor: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-              ),
-            ],
-          );
+                    );
+                  },
+                ),
+    );
   }
 
-  Widget _buildSaleCard(BuildContext context, {required dynamic sale}) {
-    final totalAmount = sale.items.fold(0.0, (sum, item) => sum + (item.price * item.quantity));
-
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: () {
-          // TODO: Navigate to sale detail screen
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Sale #${sale.id}',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                  Text(
-                    'Tsh ${totalAmount.toStringAsFixed(0)}',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF2E7D32),
-                        ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Date: ${sale.saleDate}',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[600],
-                    ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '${sale.items.length} item${sale.items.length != 1 ? 's' : ''}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
-                    ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        // TODO: Download receipt
-                      },
-                      icon: const Icon(Icons.download, size: 16),
-                      label: const Text('Receipt'),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        // TODO: View details
-                      },
-                      icon: const Icon(Icons.visibility, size: 16),
-                      label: const Text('Details'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+  Future<void> _downloadReceipt(int saleId) async {
+    try {
+      final receiptUrl = await context.read<SalesProvider>().downloadReceipt(saleId);
+      if (receiptUrl != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Receipt downloaded: $receiptUrl')),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to download receipt'),
+            backgroundColor: Colors.red,
           ),
-        ),
-      ),
-    );
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }

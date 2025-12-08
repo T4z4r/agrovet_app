@@ -17,8 +17,18 @@ import 'src/screens/products/product_form_screen.dart';
 import 'src/screens/products/product_detail_screen.dart';
 import 'src/models/product.dart';
 import 'src/screens/sales/cart_screen.dart';
+import 'src/screens/sales/sales_screen.dart';
 import 'src/screens/reports/daily_report_screen.dart';
+import 'src/screens/reports/profit_report_screen.dart';
+import 'src/screens/suppliers/suppliers_screen.dart';
+import 'src/screens/suppliers/supplier_form_screen.dart';
+import 'src/screens/stock/stock_screen.dart';
+import 'src/screens/stock/stock_form_screen.dart';
+import 'src/screens/expenses/expenses_screen.dart';
+import 'src/screens/expenses/expense_form_screen.dart';
 import 'src/screens/more_screen.dart';
+import 'src/models/supplier.dart';
+import 'src/models/expense.dart';
 
 class AgrovetApp extends StatelessWidget {
   const AgrovetApp({super.key});
@@ -65,6 +75,38 @@ class AgrovetApp extends StatelessWidget {
                 child: ProductFormScreen(),
                 initialIndex: 1,
               ),
+          '/suppliers': (context) => const RoleBasedNavigationScreen(
+                child: SuppliersScreen(),
+                initialIndex: 4,
+              ),
+          '/supplier-form': (context) => const RoleBasedNavigationScreen(
+                child: SupplierFormScreen(),
+                initialIndex: 4,
+              ),
+          '/stock': (context) => const RoleBasedNavigationScreen(
+                child: StockScreen(),
+                initialIndex: 4,
+              ),
+          '/stock-form': (context) => const RoleBasedNavigationScreen(
+                child: StockFormScreen(),
+                initialIndex: 4,
+              ),
+          '/expenses': (context) => const RoleBasedNavigationScreen(
+                child: ExpensesScreen(),
+                initialIndex: 4,
+              ),
+          '/expense-form': (context) => const RoleBasedNavigationScreen(
+                child: ExpenseFormScreen(),
+                initialIndex: 4,
+              ),
+          '/sales-history': (context) => const RoleBasedNavigationScreen(
+                child: SalesScreen(),
+                initialIndex: 4,
+              ),
+          '/profit-reports': (context) => const RoleBasedNavigationScreen(
+                child: ProfitReportScreen(),
+                initialIndex: 4,
+              ),
           '/more': (context) => const RoleBasedNavigationScreen(
                 child: MoreScreen(),
                 initialIndex: 4,
@@ -101,6 +143,22 @@ class AgrovetApp extends StatelessWidget {
               builder: (context) => RoleBasedNavigationScreen(
                 child: ProductFormScreen(product: product),
                 initialIndex: 1,
+              ),
+            );
+          } else if (settings.name == '/supplier-form') {
+            final supplier = settings.arguments as Supplier?;
+            return MaterialPageRoute(
+              builder: (context) => RoleBasedNavigationScreen(
+                child: SupplierFormScreen(supplier: supplier),
+                initialIndex: 4,
+              ),
+            );
+          } else if (settings.name == '/expense-form') {
+            final expense = settings.arguments as Expense?;
+            return MaterialPageRoute(
+              builder: (context) => RoleBasedNavigationScreen(
+                child: ExpenseFormScreen(expense: expense),
+                initialIndex: 4,
               ),
             );
           }

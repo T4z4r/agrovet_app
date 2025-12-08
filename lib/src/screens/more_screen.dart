@@ -39,13 +39,59 @@ class _MoreScreenState extends State<MoreScreen> {
             onTap: () => Navigator.pushNamed(context, '/product-form'),
           ),
 
+        // Suppliers - For admin/owner
+        if (RoleUtils.canManageSuppliers(userRole))
+          ListTile(
+            leading: const Icon(Icons.business, color: Color(0xFF2E7D32)),
+            title: const Text('Suppliers'),
+            subtitle: const Text('Manage suppliers'),
+            onTap: () => Navigator.pushNamed(context, '/suppliers'),
+          ),
+
+        // Stock Transactions - For admin/owner
+        if (RoleUtils.canManageStock(userRole))
+          ListTile(
+            leading: const Icon(Icons.inventory, color: Color(0xFF2E7D32)),
+            title: const Text('Stock Transactions'),
+            subtitle: const Text('Manage stock in/out transactions'),
+            onTap: () => Navigator.pushNamed(context, '/stock'),
+          ),
+
+        // Expenses - For admin/owner
+        if (RoleUtils.canManageExpenses(userRole))
+          ListTile(
+            leading: const Icon(Icons.account_balance_wallet, color: Color(0xFF2E7D32)),
+            title: const Text('Expenses'),
+            subtitle: const Text('Track business expenses'),
+            onTap: () => Navigator.pushNamed(context, '/expenses'),
+          ),
+
+        // Sales History - For admin/owner/seller
+        if (RoleUtils.canViewSales(userRole))
+          ListTile(
+            leading: const Icon(Icons.receipt_long, color: Color(0xFF2E7D32)),
+            title: const Text('Sales History'),
+            subtitle: const Text('View all sales transactions'),
+            onTap: () => Navigator.pushNamed(context, '/sales-history'),
+          ),
+
         // Reports - For admin/owner/seller
         if (RoleUtils.canViewReports(userRole))
-          ListTile(
+          ExpansionTile(
             leading: const Icon(Icons.pie_chart, color: Color(0xFF2E7D32)),
             title: const Text('Reports'),
-            subtitle: const Text('View daily sales reports'),
-            onTap: () => Navigator.pushNamed(context, '/reports'),
+            children: [
+              ListTile(
+                title: const Text('Daily Reports'),
+                subtitle: const Text('View daily sales reports'),
+                onTap: () => Navigator.pushNamed(context, '/reports'),
+              ),
+              ListTile(
+                title: const Text('Profit Reports'),
+                subtitle: const Text('View profit reports by date range'),
+                onTap: () => Navigator.pushNamed(context, '/profit-reports'),
+              ),
+            ],
           ),
 
         // Sync Data - For all authenticated users

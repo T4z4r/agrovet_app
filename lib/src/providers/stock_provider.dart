@@ -17,8 +17,12 @@ class StockProvider extends ChangeNotifier {
     try {
       final res = await _api.get('/stock');
       if (res.statusCode == 200) {
-        final data = jsonDecode(res.body) as List;
-        _transactions = data.map((e) => StockTransaction.fromJson(e)).toList();
+        final responseData = jsonDecode(res.body);
+        if (responseData['success'] == true) {
+          final data = responseData['data'] as List;
+          _transactions =
+              data.map((e) => StockTransaction.fromJson(e)).toList();
+        }
       }
     } catch (e) {
       // Handle error
@@ -31,12 +35,15 @@ class StockProvider extends ChangeNotifier {
   Future<bool> createTransaction(Map<String, dynamic> transactionData) async {
     try {
       final res = await _api.post('/stock', transactionData);
-      if (res.statusCode == 201) {
-        final data = jsonDecode(res.body);
-        final newTransaction = StockTransaction.fromJson(data);
-        _transactions.add(newTransaction);
-        notifyListeners();
-        return true;
+      if (res.statusCode == 200) {
+        final responseData = jsonDecode(res.body);
+        if (responseData['success'] == true) {
+          final data = responseData['data'];
+          final newTransaction = StockTransaction.fromJson(data);
+          _transactions.add(newTransaction);
+          notifyListeners();
+          return true;
+        }
       }
     } catch (e) {
       // Handle error
@@ -48,7 +55,10 @@ class StockProvider extends ChangeNotifier {
     try {
       final res = await _api.get('/stock/$id');
       if (res.statusCode == 200) {
-        return StockTransaction.fromJson(jsonDecode(res.body));
+        final responseData = jsonDecode(res.body);
+        if (responseData['success'] == true) {
+          return StockTransaction.fromJson(responseData['data']);
+        }
       }
     } catch (e) {
       // Handle error
@@ -60,9 +70,12 @@ class StockProvider extends ChangeNotifier {
     try {
       final res = await _api.delete('/stock/$id');
       if (res.statusCode == 200) {
-        _transactions.removeWhere((t) => t.id == id);
-        notifyListeners();
-        return true;
+        final responseData = jsonDecode(res.body);
+        if (responseData['success'] == true) {
+          _transactions.removeWhere((t) => t.id == id);
+          notifyListeners();
+          return true;
+        }
       }
     } catch (e) {
       // Handle error

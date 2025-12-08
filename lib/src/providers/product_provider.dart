@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../services/api_service.dart';
 import '../services/database_helper.dart';
-import 'package:http/http.dart' as http;
 
 class ProductProvider extends ChangeNotifier {
   final ApiService _api = ApiService();
@@ -29,12 +28,15 @@ class ProductProvider extends ChangeNotifier {
     try {
       final res = await _api.get('/products');
       if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        _products = (data as List).map((e) => Product.fromJson(e)).toList();
+        final responseData = jsonDecode(res.body);
+        if (responseData['success'] == true) {
+          final data = responseData['data'] as List;
+          _products = data.map((e) => Product.fromJson(e)).toList();
 
-        // Save to local DB
-        for (var product in data) {
-          await db.insertProduct(product);
+          // Save to local DB
+          for (var product in data) {
+            await db.insertProduct(product);
+          }
         }
       }
     } catch (e) {
@@ -70,7 +72,10 @@ class ProductProvider extends ChangeNotifier {
     try {
       final res = await _api.get('/products/$id');
       if (res.statusCode == 200) {
-        return Product.fromJson(jsonDecode(res.body));
+        final responseData = jsonDecode(res.body);
+        if (responseData['success'] == true) {
+          return Product.fromJson(responseData['data']);
+        }
       }
     } catch (e) {
       // Handle error
@@ -106,11 +111,14 @@ class ProductProvider extends ChangeNotifier {
     try {
       final res = await _api.delete('/products/$id');
       if (res.statusCode == 200) {
-        _products.removeWhere((p) => p.id == id);
-        final db = DatabaseHelper();
-        await db.deleteProduct(id);
-        notifyListeners();
-        return true;
+        final responseData = jsonDecode(res.body);
+        if (responseData['success'] == true) {
+          _products.removeWhere((p) => p.id == id);
+          final db = DatabaseHelper();
+          await db.deleteProduct(id);
+          notifyListeners();
+          return true;
+        }
       }
     } catch (e) {
       // Handle error

@@ -28,12 +28,15 @@ class SalesProvider extends ChangeNotifier {
     try {
       final res = await _api.get('/sales');
       if (res.statusCode == 200) {
-        final data = jsonDecode(res.body) as List;
-        _sales = data.map((e) => Sale.fromJson(e)).toList();
+        final responseData = jsonDecode(res.body);
+        if (responseData['success'] == true) {
+          final data = responseData['data'] as List;
+          _sales = data.map((e) => Sale.fromJson(e)).toList();
 
-        // Save to local DB
-        for (var sale in data) {
-          await _db.insertSale(sale);
+          // Save to local DB
+          for (var sale in data) {
+            await _db.insertSale(sale);
+          }
         }
       }
     } catch (e) {
@@ -59,13 +62,19 @@ class SalesProvider extends ChangeNotifier {
   Future<bool> createSale(Map<String, dynamic> saleData) async {
     try {
       final res = await _api.post('/sales', saleData);
-      if (res.statusCode == 201) {
-        final data = jsonDecode(res.body);
-        final newSale = Sale.fromJson(data);
-        _sales.add(newSale);
-        await _db.insertSale(data);
-        notifyListeners();
-        return true;
+      if (res.statusCode == 200) {
+        final responseData = jsonDecode(res.body);
+        if (responseData['success'] == true) {
+          final data = responseData['data'];
+          final newSale = Sale.fromJson(data);
+          _sales.add(newSale);
+          await _db.insertSale(data);
+          notifyListeners();
+          return true;
+        } else if (res.statusCode == 422) {
+          // Handle insufficient stock error
+          throw Exception(responseData['message'] ?? 'Insufficient stock');
+        }
       }
     } catch (e) {
       // If offline, save locally for later sync
@@ -114,7 +123,10 @@ class SalesProvider extends ChangeNotifier {
     try {
       final res = await _api.get('/sales/$id');
       if (res.statusCode == 200) {
-        return Sale.fromJson(jsonDecode(res.body));
+        final responseData = jsonDecode(res.body);
+        if (responseData['success'] == true) {
+          return Sale.fromJson(responseData['data']);
+        }
       }
     } catch (e) {
       // Handle error

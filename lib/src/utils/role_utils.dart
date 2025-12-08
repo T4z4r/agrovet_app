@@ -41,6 +41,22 @@ class RoleUtils {
     return isAdminOrOwner(role);
   }
 
+  static bool canManageSuppliers(String? role) {
+    return isAdminOrOwner(role);
+  }
+
+  static bool canManageStock(String? role) {
+    return isAdminOrOwner(role);
+  }
+
+  static bool canManageExpenses(String? role) {
+    return isAdminOrOwner(role);
+  }
+
+  static bool canViewSales(String? role) {
+    return isAdminOrOwner(role) || isSeller(role);
+  }
+
   static List<String> getNavigationTabs(String? role) {
     if (isAdminOrOwner(role)) {
       return ['Dashboard', 'Products', 'Sales', 'Cart', 'More'];

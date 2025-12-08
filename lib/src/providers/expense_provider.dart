@@ -17,8 +17,11 @@ class ExpenseProvider extends ChangeNotifier {
     try {
       final res = await _api.get('/expenses');
       if (res.statusCode == 200) {
-        final data = jsonDecode(res.body) as List;
-        _expenses = data.map((e) => Expense.fromJson(e)).toList();
+        final responseData = jsonDecode(res.body);
+        if (responseData['success'] == true) {
+          final data = responseData['data'] as List;
+          _expenses = data.map((e) => Expense.fromJson(e)).toList();
+        }
       }
     } catch (e) {
       // Handle error
@@ -31,12 +34,15 @@ class ExpenseProvider extends ChangeNotifier {
   Future<bool> createExpense(Map<String, dynamic> expenseData) async {
     try {
       final res = await _api.post('/expenses', expenseData);
-      if (res.statusCode == 201) {
-        final data = jsonDecode(res.body);
-        final newExpense = Expense.fromJson(data);
-        _expenses.add(newExpense);
-        notifyListeners();
-        return true;
+      if (res.statusCode == 200) {
+        final responseData = jsonDecode(res.body);
+        if (responseData['success'] == true) {
+          final data = responseData['data'];
+          final newExpense = Expense.fromJson(data);
+          _expenses.add(newExpense);
+          notifyListeners();
+          return true;
+        }
       }
     } catch (e) {
       // Handle error
@@ -48,7 +54,10 @@ class ExpenseProvider extends ChangeNotifier {
     try {
       final res = await _api.get('/expenses/$id');
       if (res.statusCode == 200) {
-        return Expense.fromJson(jsonDecode(res.body));
+        final responseData = jsonDecode(res.body);
+        if (responseData['success'] == true) {
+          return Expense.fromJson(responseData['data']);
+        }
       }
     } catch (e) {
       // Handle error
@@ -60,14 +69,17 @@ class ExpenseProvider extends ChangeNotifier {
     try {
       final res = await _api.put('/expenses/$id', expenseData);
       if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        final updatedExpense = Expense.fromJson(data);
-        final index = _expenses.indexWhere((e) => e.id == id);
-        if (index >= 0) {
-          _expenses[index] = updatedExpense;
-          notifyListeners();
+        final responseData = jsonDecode(res.body);
+        if (responseData['success'] == true) {
+          final data = responseData['data'];
+          final updatedExpense = Expense.fromJson(data);
+          final index = _expenses.indexWhere((e) => e.id == id);
+          if (index >= 0) {
+            _expenses[index] = updatedExpense;
+            notifyListeners();
+          }
+          return true;
         }
-        return true;
       }
     } catch (e) {
       // Handle error
@@ -79,9 +91,12 @@ class ExpenseProvider extends ChangeNotifier {
     try {
       final res = await _api.delete('/expenses/$id');
       if (res.statusCode == 200) {
-        _expenses.removeWhere((e) => e.id == id);
-        notifyListeners();
-        return true;
+        final responseData = jsonDecode(res.body);
+        if (responseData['success'] == true) {
+          _expenses.removeWhere((e) => e.id == id);
+          notifyListeners();
+          return true;
+        }
       }
     } catch (e) {
       // Handle error

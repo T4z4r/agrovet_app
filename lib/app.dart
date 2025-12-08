@@ -11,8 +11,7 @@ import 'src/providers/sales_provider.dart';
 import 'src/services/connectivity_service.dart';
 import 'src/screens/auth/login_screen.dart';
 import 'src/screens/splash_screen.dart';
-import 'src/screens/base_navigation_screen.dart';
-import 'src/screens/home/dashboard_screen.dart';
+import 'src/screens/role_based_navigation_screen.dart';
 import 'src/screens/products/products_screen.dart';
 import 'src/screens/products/product_form_screen.dart';
 import 'src/screens/products/product_detail_screen.dart';
@@ -39,7 +38,8 @@ class AgrovetApp extends StatelessWidget {
         ChangeNotifierProvider<ExpenseProvider>(
             create: (_) => ExpenseProvider()),
         ChangeNotifierProvider<SalesProvider>(create: (_) => SalesProvider()),
-        ChangeNotifierProvider<ConnectivityService>(create: (_) => ConnectivityService()),
+        ChangeNotifierProvider<ConnectivityService>(
+            create: (_) => ConnectivityService()),
       ],
       child: MaterialApp(
         title: 'AgroVet',
@@ -48,40 +48,40 @@ class AgrovetApp extends StatelessWidget {
         routes: {
           '/': (context) => const SplashScreen(),
           '/login': (context) => const LoginScreen(),
-          '/dashboard': (context) => const BaseNavigationScreen(),
-          '/products': (context) => const BaseNavigationScreen(
+          '/dashboard': (context) => const RoleBasedNavigationScreen(),
+          '/products': (context) => const RoleBasedNavigationScreen(
                 child: ProductsScreen(),
                 initialIndex: 1,
               ),
-          '/cart': (context) => const BaseNavigationScreen(
+          '/cart': (context) => const RoleBasedNavigationScreen(
                 child: CartScreen(),
                 initialIndex: 3,
               ),
-          '/reports': (context) => const BaseNavigationScreen(
+          '/reports': (context) => const RoleBasedNavigationScreen(
                 child: DailyReportScreen(),
                 initialIndex: 4,
               ),
-          '/product-form': (context) => const BaseNavigationScreen(
+          '/product-form': (context) => const RoleBasedNavigationScreen(
                 child: ProductFormScreen(),
                 initialIndex: 1,
               ),
-          '/more': (context) => const BaseNavigationScreen(
+          '/more': (context) => const RoleBasedNavigationScreen(
                 child: MoreScreen(),
                 initialIndex: 4,
               ),
-          '/analytics': (context) => const BaseNavigationScreen(
+          '/analytics': (context) => const RoleBasedNavigationScreen(
                 child: DailyReportScreen(),
                 initialIndex: 4,
               ), // Placeholder for analytics
-          '/settings': (context) => const BaseNavigationScreen(
+          '/settings': (context) => const RoleBasedNavigationScreen(
                 child: DailyReportScreen(),
                 initialIndex: 4,
               ), // Placeholder for settings
-          '/help': (context) => const BaseNavigationScreen(
+          '/help': (context) => const RoleBasedNavigationScreen(
                 child: DailyReportScreen(),
                 initialIndex: 4,
               ), // Placeholder for help
-          '/about': (context) => const BaseNavigationScreen(
+          '/about': (context) => const RoleBasedNavigationScreen(
                 child: DailyReportScreen(),
                 initialIndex: 4,
               ), // Placeholder for about
@@ -90,7 +90,7 @@ class AgrovetApp extends StatelessWidget {
           if (settings.name == '/product-detail') {
             final product = settings.arguments as Product;
             return MaterialPageRoute(
-              builder: (context) => BaseNavigationScreen(
+              builder: (context) => RoleBasedNavigationScreen(
                 child: ProductDetailScreen(product: product),
                 initialIndex: 1,
               ),
@@ -98,7 +98,7 @@ class AgrovetApp extends StatelessWidget {
           } else if (settings.name == '/product-form') {
             final product = settings.arguments as Product?;
             return MaterialPageRoute(
-              builder: (context) => BaseNavigationScreen(
+              builder: (context) => RoleBasedNavigationScreen(
                 child: ProductFormScreen(product: product),
                 initialIndex: 1,
               ),

@@ -5,6 +5,7 @@ import '../providers/product_provider.dart';
 import '../providers/sales_provider.dart';
 import '../services/connectivity_service.dart';
 import '../services/database_helper.dart';
+import '../utils/role_utils.dart';
 
 class MoreScreen extends StatefulWidget {
   const MoreScreen({super.key});
@@ -18,26 +19,36 @@ class _MoreScreenState extends State<MoreScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
     final connectivity = Provider.of<ConnectivityService>(context);
     final productProvider =
         Provider.of<ProductProvider>(context, listen: false);
     final salesProvider = Provider.of<SalesProvider>(context, listen: false);
 
+    final userRole = auth.user?['role'] as String?;
+
     return ListView(
       children: [
-        ListTile(
-          leading:
-              const Icon(Icons.add_shopping_cart, color: Color(0xFF2E7D32)),
-          title: const Text('Add Product'),
-          subtitle: const Text('Add a new product to inventory'),
-          onTap: () => Navigator.pushNamed(context, '/product-form'),
-        ),
-        ListTile(
-          leading: const Icon(Icons.pie_chart, color: Color(0xFF2E7D32)),
-          title: const Text('Reports'),
-          subtitle: const Text('View daily sales reports'),
-          onTap: () => Navigator.pushNamed(context, '/reports'),
-        ),
+        // Add Product - Only for admin/owner
+        if (RoleUtils.canAddProducts(userRole))
+          ListTile(
+            leading:
+                const Icon(Icons.add_shopping_cart, color: Color(0xFF2E7D32)),
+            title: const Text('Add Product'),
+            subtitle: const Text('Add a new product to inventory'),
+            onTap: () => Navigator.pushNamed(context, '/product-form'),
+          ),
+
+        // Reports - For admin/owner/seller
+        if (RoleUtils.canViewReports(userRole))
+          ListTile(
+            leading: const Icon(Icons.pie_chart, color: Color(0xFF2E7D32)),
+            title: const Text('Reports'),
+            subtitle: const Text('View daily sales reports'),
+            onTap: () => Navigator.pushNamed(context, '/reports'),
+          ),
+
+        // Sync Data - For all authenticated users
         ListTile(
           leading: Icon(
             Icons.sync,
@@ -61,23 +72,31 @@ class _MoreScreenState extends State<MoreScreen> {
               ? () => _syncData(context, productProvider, salesProvider)
               : null,
         ),
-        ListTile(
-          leading: const Icon(Icons.cleaning_services, color: Colors.orange),
-          title: const Text('Clean Database'),
-          subtitle: const Text('Clear all local data and recreate database'),
-          onTap: () => _showCleanDatabaseDialog(context),
-        ),
+
+        // Clean Database - Only for admin/owner
+        if (RoleUtils.canManageDatabase(userRole))
+          ListTile(
+            leading: const Icon(Icons.cleaning_services, color: Colors.orange),
+            title: const Text('Clean Database'),
+            subtitle: const Text('Clear all local data and recreate database'),
+            onTap: () => _showCleanDatabaseDialog(context),
+          ),
+
         const Divider(),
-        ListTile(
-          leading: const Icon(Icons.settings, color: Color(0xFF2E7D32)),
-          title: const Text('Settings'),
-          subtitle: const Text('App settings and preferences'),
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Settings coming soon!')),
-            );
-          },
-        ),
+
+        // Settings - Only for admin/owner
+        if (RoleUtils.canAccessSettings(userRole))
+          ListTile(
+            leading: const Icon(Icons.settings, color: Color(0xFF2E7D32)),
+            title: const Text('Settings'),
+            subtitle: const Text('App settings and preferences'),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Settings coming soon!')),
+              );
+            },
+          ),
+
         ListTile(
           leading: const Icon(Icons.info, color: Color(0xFF2E7D32)),
           title: const Text('About'),
@@ -91,13 +110,16 @@ class _MoreScreenState extends State<MoreScreen> {
             );
           },
         ),
+
         const Divider(),
+
         ListTile(
           leading: const Icon(Icons.logout, color: Colors.red),
           title: const Text('Logout'),
           subtitle: const Text('Sign out of your account'),
           onTap: () => _showLogoutDialog(context),
         ),
+
         ListTile(
           leading: const Icon(Icons.help, color: Color(0xFF2E7D32)),
           title: const Text('Help'),

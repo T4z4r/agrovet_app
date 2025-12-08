@@ -47,6 +47,27 @@ class DatabaseHelper {
         price REAL
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE sales (
+        id INTEGER PRIMARY KEY,
+        seller_id INTEGER,
+        sale_date TEXT,
+        total_amount REAL,
+        synced INTEGER DEFAULT 0
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE sale_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sale_id INTEGER,
+        product_id INTEGER,
+        quantity INTEGER,
+        price REAL,
+        FOREIGN KEY (sale_id) REFERENCES sales (id)
+      )
+    ''');
   }
 
   // Products methods
@@ -118,5 +139,101 @@ class DatabaseHelper {
   Future<void> clearCart() async {
     final db = await database;
     await db.delete('cart_items');
+  }
+
+  Future<void> clearProducts() async {
+    final db = await database;
+    await db.delete('products');
+  }
+
+  Future<void> clearSales() async {
+    final db = await database;
+    await db.delete('sales');
+    await db.delete('sale_items');
+  }
+
+  Future<void> clearAllData() async {
+    final db = await database;
+    await db.delete('cart_items');
+    await db.delete('products');
+    await db.delete('sales');
+    await db.delete('sale_items');
+  }
+
+  // Sales methods
+  Future<void> insertSale(Map<String, dynamic> sale) async {
+    final db = await database;
+    final saleId = await db.insert('sales', {
+      'id': sale['id'],
+      'seller_id': sale['seller_id'],
+      'sale_date': sale['sale_date'],
+      'total_amount': _calculateTotalAmount(sale['items'] ?? []),
+      'synced': 1,
+    });
+
+    // Insert sale items
+    for (var item in sale['items'] ?? []) {
+      await db.insert('sale_items', {
+        'sale_id': saleId,
+        'product_id': item['product_id'],
+        'quantity': item['quantity'],
+        'price': item['price'],
+      });
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getSales() async {
+    final db = await database;
+    return await db.query('sales', orderBy: 'sale_date DESC');
+  }
+
+  Future<Map<String, dynamic>?> getSaleWithItems(int saleId) async {
+    final db = await database;
+    final sale = await db.query('sales', where: 'id = ?', whereArgs: [saleId]);
+    if (sale.isEmpty) return null;
+
+    final items =
+        await db.query('sale_items', where: 'sale_id = ?', whereArgs: [saleId]);
+    return {
+      ...sale.first,
+      'items': items,
+    };
+  }
+
+  Future<void> insertPendingSale(Map<String, dynamic> sale) async {
+    final db = await database;
+    final saleId = await db.insert('sales', {
+      'id': DateTime.now().millisecondsSinceEpoch, // Temporary ID
+      'seller_id': sale['seller_id'],
+      'sale_date': sale['sale_date'],
+      'total_amount': _calculateTotalAmount(sale['items'] ?? []),
+      'synced': 0, // Mark as not synced
+    });
+
+    // Insert sale items
+    for (var item in sale['items'] ?? []) {
+      await db.insert('sale_items', {
+        'sale_id': saleId,
+        'product_id': item['product_id'],
+        'quantity': item['quantity'],
+        'price': item['price'],
+      });
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getPendingSales() async {
+    final db = await database;
+    return await db.query('sales', where: 'synced = ?', whereArgs: [0]);
+  }
+
+  Future<void> markSaleAsSynced(int saleId) async {
+    final db = await database;
+    await db.update('sales', {'synced': 1},
+        where: 'id = ?', whereArgs: [saleId]);
+  }
+
+  double _calculateTotalAmount(List items) {
+    return items.fold(0.0,
+        (sum, item) => sum + ((item['price'] ?? 0) * (item['quantity'] ?? 0)));
   }
 }

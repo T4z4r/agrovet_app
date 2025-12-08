@@ -8,7 +8,9 @@ import 'src/providers/supplier_provider.dart';
 import 'src/providers/stock_provider.dart';
 import 'src/providers/expense_provider.dart';
 import 'src/providers/sales_provider.dart';
+import 'src/services/connectivity_service.dart';
 import 'src/screens/auth/login_screen.dart';
+import 'src/screens/splash_screen.dart';
 import 'src/screens/base_navigation_screen.dart';
 import 'src/screens/home/dashboard_screen.dart';
 import 'src/screens/products/products_screen.dart';
@@ -37,13 +39,15 @@ class AgrovetApp extends StatelessWidget {
         ChangeNotifierProvider<ExpenseProvider>(
             create: (_) => ExpenseProvider()),
         ChangeNotifierProvider<SalesProvider>(create: (_) => SalesProvider()),
+        ChangeNotifierProvider<ConnectivityService>(create: (_) => ConnectivityService()),
       ],
       child: MaterialApp(
         title: 'AgroVet',
         theme: _buildTheme(),
         initialRoute: '/',
         routes: {
-          '/': (context) => const LoginScreen(),
+          '/': (context) => const SplashScreen(),
+          '/login': (context) => const LoginScreen(),
           '/dashboard': (context) => const BaseNavigationScreen(),
           '/products': (context) => const BaseNavigationScreen(
                 child: ProductsScreen(),

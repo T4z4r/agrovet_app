@@ -117,4 +117,9 @@ class ProductProvider extends ChangeNotifier {
     }
     return false;
   }
+
+  void clearData() {
+    _products.clear();
+    notifyListeners();
+  }
 }

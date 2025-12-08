@@ -3,16 +3,17 @@ import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
 import 'home/dashboard_screen.dart';
 import 'products/products_screen.dart';
+import 'sales/sales_screen.dart';
 import 'sales/cart_screen.dart';
 import 'more_screen.dart';
 
 class BaseNavigationScreen extends StatefulWidget {
-  final Widget child;
+  final Widget? child;
   final int initialIndex;
 
   const BaseNavigationScreen({
     super.key,
-    required this.child,
+    this.child,
     this.initialIndex = 0,
   });
 
@@ -26,6 +27,7 @@ class _BaseNavigationScreenState extends State<BaseNavigationScreen> {
   final List<Widget> _screens = [
     const DashboardScreen(),
     const ProductsScreen(),
+    const SalesScreen(),
     const CartScreen(),
     const MoreScreen(),
   ];
@@ -33,6 +35,7 @@ class _BaseNavigationScreenState extends State<BaseNavigationScreen> {
   final List<String> _titles = [
     'Dashboard',
     'Products',
+    'Sales',
     'Cart',
     'More',
   ];
@@ -52,7 +55,7 @@ class _BaseNavigationScreenState extends State<BaseNavigationScreen> {
     String currentTitle;
 
     if (_currentIndex == widget.initialIndex && widget.child != null) {
-      currentScreen = widget.child;
+      currentScreen = widget.child!;
       currentTitle = 'AgroVet'; // Default title for navigated screens
     } else {
       currentScreen = _screens[_currentIndex];
@@ -71,10 +74,26 @@ class _BaseNavigationScreenState extends State<BaseNavigationScreen> {
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          if (_currentIndex == widget.initialIndex) widget.child else _screens[0],
-          if (_currentIndex == widget.initialIndex) widget.child else _screens[1],
-          if (_currentIndex == widget.initialIndex) widget.child else _screens[2],
-          if (_currentIndex == widget.initialIndex) widget.child else _screens[3],
+          if (_currentIndex == widget.initialIndex && widget.child != null)
+            widget.child!
+          else
+            _screens[0],
+          if (_currentIndex == widget.initialIndex && widget.child != null)
+            widget.child!
+          else
+            _screens[1],
+          if (_currentIndex == widget.initialIndex && widget.child != null)
+            widget.child!
+          else
+            _screens[2],
+          if (_currentIndex == widget.initialIndex && widget.child != null)
+            widget.child!
+          else
+            _screens[3],
+          if (_currentIndex == widget.initialIndex && widget.child != null)
+            widget.child!
+          else
+            _screens[4],
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -91,6 +110,10 @@ class _BaseNavigationScreenState extends State<BaseNavigationScreen> {
           BottomNavigationBarItem(
             icon: const Icon(Icons.store),
             label: 'Products',
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.receipt_long),
+            label: 'Sales',
           ),
           BottomNavigationBarItem(
             icon: Stack(

@@ -44,21 +44,18 @@ class AgrovetApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => const LoginScreen(),
-          '/dashboard': (context) => const BaseNavigationScreen(
-                child: DashboardScreen(),
-                initialIndex: 0,
-              ),
+          '/dashboard': (context) => const BaseNavigationScreen(),
           '/products': (context) => const BaseNavigationScreen(
                 child: ProductsScreen(),
                 initialIndex: 1,
               ),
           '/cart': (context) => const BaseNavigationScreen(
                 child: CartScreen(),
-                initialIndex: 2,
+                initialIndex: 3,
               ),
           '/reports': (context) => const BaseNavigationScreen(
                 child: DailyReportScreen(),
-                initialIndex: 3,
+                initialIndex: 4,
               ),
           '/product-form': (context) => const BaseNavigationScreen(
                 child: ProductFormScreen(),
@@ -66,23 +63,23 @@ class AgrovetApp extends StatelessWidget {
               ),
           '/more': (context) => const BaseNavigationScreen(
                 child: MoreScreen(),
-                initialIndex: 3,
+                initialIndex: 4,
               ),
           '/analytics': (context) => const BaseNavigationScreen(
                 child: DailyReportScreen(),
-                initialIndex: 3,
+                initialIndex: 4,
               ), // Placeholder for analytics
           '/settings': (context) => const BaseNavigationScreen(
                 child: DailyReportScreen(),
-                initialIndex: 3,
+                initialIndex: 4,
               ), // Placeholder for settings
           '/help': (context) => const BaseNavigationScreen(
                 child: DailyReportScreen(),
-                initialIndex: 3,
+                initialIndex: 4,
               ), // Placeholder for help
           '/about': (context) => const BaseNavigationScreen(
                 child: DailyReportScreen(),
-                initialIndex: 3,
+                initialIndex: 4,
               ), // Placeholder for about
         },
         onGenerateRoute: (settings) {

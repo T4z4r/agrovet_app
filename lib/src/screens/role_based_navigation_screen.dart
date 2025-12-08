@@ -20,7 +20,8 @@ class RoleBasedNavigationScreen extends StatefulWidget {
   });
 
   @override
-  State<RoleBasedNavigationScreen> createState() => _RoleBasedNavigationScreenState();
+  State<RoleBasedNavigationScreen> createState() =>
+      _RoleBasedNavigationScreenState();
 }
 
 class _RoleBasedNavigationScreenState extends State<RoleBasedNavigationScreen> {
@@ -40,38 +41,46 @@ class _RoleBasedNavigationScreenState extends State<RoleBasedNavigationScreen> {
     final tabs = RoleUtils.getNavigationTabs(userRole);
     final icons = RoleUtils.getNavigationIcons(userRole);
 
-    final List<Widget> screens = [
-      const DashboardScreen(),
-      const ProductsScreen(),
-      if (RoleUtils.isAdminOrOwner(userRole) || RoleUtils.isSeller(userRole))
-        const SalesScreen(),
-      const CartScreen(),
-      const MoreScreen(),
-    ];
-
-    // Adjust screens list based on role
-    List<Widget> roleScreens = [];
-    if (RoleUtils.isAdminOrOwner(userRole) || RoleUtils.isSeller(userRole)) {
-      roleScreens = screens;
-    } else {
-      // For customers or other roles, exclude Sales
-      roleScreens = [
-        screens[0], // Dashboard
-        screens[1], // Products
-        screens[3], // Cart
-        screens[4], // More
-      ];
+    // Ensure _currentIndex is within valid range for current role
+    if (_currentIndex >= tabs.length) {
+      _currentIndex = 0;
     }
 
-    // Determine which screen to show
-    Widget currentScreen;
-    String currentTitle;
+    // Create screens list based on role
+    final List<Widget> roleScreens = [];
+    if (RoleUtils.isAdminOrOwner(userRole) || RoleUtils.isSeller(userRole)) {
+      roleScreens.addAll([
+        const DashboardScreen(),
+        const ProductsScreen(),
+        const SalesScreen(),
+        const CartScreen(),
+        const MoreScreen(),
+      ]);
+    } else {
+      // For customers or other roles, exclude Sales
+      roleScreens.addAll([
+        const DashboardScreen(),
+        const ProductsScreen(),
+        const CartScreen(),
+        const MoreScreen(),
+      ]);
+    }
 
+    // Create IndexedStack children - must match tabs length
+    final List<Widget> stackChildren = [];
+    for (int i = 0; i < tabs.length; i++) {
+      if (_currentIndex == widget.initialIndex && widget.child != null) {
+        stackChildren.add(widget.child!);
+      } else {
+        stackChildren.add(roleScreens[i]);
+      }
+    }
+
+    // Determine current title
+    String currentTitle;
     if (_currentIndex == widget.initialIndex && widget.child != null) {
-      currentScreen = widget.child!;
       currentTitle = 'AgroVet'; // Default title for navigated screens
     } else {
-      currentScreen = roleScreens[_currentIndex];
       currentTitle = tabs[_currentIndex];
     }
 
@@ -86,23 +95,22 @@ class _RoleBasedNavigationScreenState extends State<RoleBasedNavigationScreen> {
             ),
       body: IndexedStack(
         index: _currentIndex,
-        children: [
-          if (_currentIndex == widget.initialIndex && widget.child != null)
-            widget.child!
-          else
-            for (var screen in roleScreens) screen,
-        ],
+        children: stackChildren,
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        onTap: (index) {
+          if (index >= 0 && index < tabs.length) {
+            setState(() => _currentIndex = index);
+          }
+        },
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFF2E7D32),
         unselectedItemColor: Colors.grey,
         items: [
           for (int i = 0; i < tabs.length; i++)
             BottomNavigationBarItem(
-              icon: i == 3 && tabs[i] == 'Cart' // Cart is always at index 3 in roleScreens
+              icon: tabs[i] == 'Cart'
                   ? Stack(
                       children: [
                         Icon(icons[i]),

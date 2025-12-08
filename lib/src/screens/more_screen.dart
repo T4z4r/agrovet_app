@@ -278,18 +278,25 @@ class _MoreScreenState extends State<MoreScreen> {
       // Perform logout
       await authProvider.logout();
 
+      // Navigate to login screen and clear navigation stack
       if (mounted) {
-        // Navigate to login screen and clear navigation stack
-        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+        Navigator.of(context)
+            .pushNamedAndRemoveUntil('/login', (route) => false);
       }
     } catch (e) {
+      // Show error message - context should still be valid here since we haven't navigated
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Logout failed: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        try {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Logout failed: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } catch (scaffoldError) {
+          // If ScaffoldMessenger fails, the context might be invalid
+          // Just ignore the error since we can't show it anyway
+        }
       }
     }
   }

@@ -9,12 +9,15 @@ import 'src/providers/stock_provider.dart';
 import 'src/providers/expense_provider.dart';
 import 'src/providers/sales_provider.dart';
 import 'src/screens/auth/login_screen.dart';
-import 'src/screens/main_navigation_screen.dart';
+import 'src/screens/base_navigation_screen.dart';
 import 'src/screens/home/dashboard_screen.dart';
 import 'src/screens/products/products_screen.dart';
 import 'src/screens/products/product_form_screen.dart';
+import 'src/screens/products/product_detail_screen.dart';
+import 'src/models/product.dart';
 import 'src/screens/sales/cart_screen.dart';
 import 'src/screens/reports/daily_report_screen.dart';
+import 'src/screens/more_screen.dart';
 
 class AgrovetApp extends StatelessWidget {
   const AgrovetApp({super.key});
@@ -41,15 +44,66 @@ class AgrovetApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => const LoginScreen(),
-          '/dashboard': (context) => const MainNavigationScreen(),
-          '/products': (context) => const ProductsScreen(),
-          '/cart': (context) => const CartScreen(),
-          '/reports': (context) => const DailyReportScreen(),
-          '/product-form': (context) => const ProductFormScreen(),
-          '/analytics': (context) => const DailyReportScreen(), // Placeholder for analytics
-          '/settings': (context) => const DailyReportScreen(), // Placeholder for settings
-          '/help': (context) => const DailyReportScreen(), // Placeholder for help
-          '/about': (context) => const DailyReportScreen(), // Placeholder for about
+          '/dashboard': (context) => const BaseNavigationScreen(
+                child: DashboardScreen(),
+                initialIndex: 0,
+              ),
+          '/products': (context) => const BaseNavigationScreen(
+                child: ProductsScreen(),
+                initialIndex: 1,
+              ),
+          '/cart': (context) => const BaseNavigationScreen(
+                child: CartScreen(),
+                initialIndex: 2,
+              ),
+          '/reports': (context) => const BaseNavigationScreen(
+                child: DailyReportScreen(),
+                initialIndex: 3,
+              ),
+          '/product-form': (context) => const BaseNavigationScreen(
+                child: ProductFormScreen(),
+                initialIndex: 1,
+              ),
+          '/more': (context) => const BaseNavigationScreen(
+                child: MoreScreen(),
+                initialIndex: 3,
+              ),
+          '/analytics': (context) => const BaseNavigationScreen(
+                child: DailyReportScreen(),
+                initialIndex: 3,
+              ), // Placeholder for analytics
+          '/settings': (context) => const BaseNavigationScreen(
+                child: DailyReportScreen(),
+                initialIndex: 3,
+              ), // Placeholder for settings
+          '/help': (context) => const BaseNavigationScreen(
+                child: DailyReportScreen(),
+                initialIndex: 3,
+              ), // Placeholder for help
+          '/about': (context) => const BaseNavigationScreen(
+                child: DailyReportScreen(),
+                initialIndex: 3,
+              ), // Placeholder for about
+        },
+        onGenerateRoute: (settings) {
+          if (settings.name == '/product-detail') {
+            final product = settings.arguments as Product;
+            return MaterialPageRoute(
+              builder: (context) => BaseNavigationScreen(
+                child: ProductDetailScreen(product: product),
+                initialIndex: 1,
+              ),
+            );
+          } else if (settings.name == '/product-form') {
+            final product = settings.arguments as Product?;
+            return MaterialPageRoute(
+              builder: (context) => BaseNavigationScreen(
+                child: ProductFormScreen(product: product),
+                initialIndex: 1,
+              ),
+            );
+          }
+          return null;
         },
         debugShowCheckedModeBanner: false,
       ),

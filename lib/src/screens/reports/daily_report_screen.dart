@@ -230,7 +230,7 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
                   _buildSummaryItem(
                     context,
                     'Total Sales',
-                    'KSh ${report['total_sales']?.toStringAsFixed(0) ?? '0'}',
+                    'Tsh ${report['total_sales']?.toStringAsFixed(0) ?? '0'}',
                     Icons.monetization_on,
                     const Color(0xFF4CAF50),
                   ),

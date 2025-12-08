@@ -201,18 +201,15 @@ class _ProductsScreenState extends State<ProductsScreen> {
                             return _buildProductCard(
                               context,
                               product: p,
-                              onTap: () => Navigator.push(
+                              onTap: () => Navigator.pushNamed(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      ProductDetailScreen(product: p),
-                                ),
+                                '/product-detail',
+                                arguments: p,
                               ),
-                              onEdit: () => Navigator.push(
+                              onEdit: () => Navigator.pushNamed(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (_) => ProductFormScreen(product: p),
-                                ),
+                                '/product-form',
+                                arguments: p,
                               ),
                               onAddToCart: () => _addToCart(context, p, cart),
                             );
@@ -280,26 +277,31 @@ class _ProductsScreenState extends State<ProductsScreen> {
                       children: [
                         Text(
                           product.name,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '${product.unit}',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey[600],
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
                         ),
                         const SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'KSh ${product.sellingPrice.toStringAsFixed(0)}',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              'Tsh ${product.sellingPrice.toStringAsFixed(0)}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: const Color(0xFF2E7D32),
                                   ),
@@ -338,7 +340,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
                             child: ElevatedButton(
                               onPressed: product.stock > 0 ? onAddToCart : null,
                               style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),

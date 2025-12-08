@@ -113,7 +113,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         Text(
-                          'KSh ${product.sellingPrice.toStringAsFixed(0)}',
+                          'Tsh ${product.sellingPrice.toStringAsFixed(0)}',
                           style: Theme.of(context)
                               .textTheme
                               .headlineSmall
@@ -217,7 +217,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         Text(
-                          'KSh ${(product.sellingPrice * qty).toStringAsFixed(0)}',
+                          'Tsh ${(product.sellingPrice * qty).toStringAsFixed(0)}',
                           style: Theme.of(context)
                               .textTheme
                               .headlineSmall

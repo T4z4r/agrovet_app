@@ -209,7 +209,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 controller: _costPriceController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                  labelText: 'Cost Price (KSh)',
+                  labelText: 'Cost Price (Tsh)',
                   prefixIcon: Icon(Icons.attach_money),
                   border: OutlineInputBorder(),
                   helperText: 'Price you paid for the product',
@@ -234,7 +234,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 controller: _sellingPriceController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                  labelText: 'Selling Price (KSh)',
+                  labelText: 'Selling Price (Tsh)',
                   prefixIcon: Icon(Icons.sell),
                   border: OutlineInputBorder(),
                   helperText: 'Price at which you sell to customers',
@@ -317,7 +317,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                                           ),
                                     ),
                                     Text(
-                                      'KSh ${profit.toStringAsFixed(2)}',
+                                      'Tsh ${profit.toStringAsFixed(2)}',
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleMedium
@@ -358,7 +358,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                               Padding(
                                 padding: const EdgeInsets.only(top: 8),
                                 child: Text(
-                                  'You make KSh ${profit.toStringAsFixed(2)} profit on each unit sold',
+                                  'You make Tsh ${profit.toStringAsFixed(2)} profit on each unit sold',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall

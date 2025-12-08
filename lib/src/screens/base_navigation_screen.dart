@@ -6,15 +6,22 @@ import 'products/products_screen.dart';
 import 'sales/cart_screen.dart';
 import 'more_screen.dart';
 
-class MainNavigationScreen extends StatefulWidget {
-  const MainNavigationScreen({super.key});
+class BaseNavigationScreen extends StatefulWidget {
+  final Widget child;
+  final int initialIndex;
+
+  const BaseNavigationScreen({
+    super.key,
+    required this.child,
+    this.initialIndex = 0,
+  });
 
   @override
-  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
+  State<BaseNavigationScreen> createState() => _BaseNavigationScreenState();
 }
 
-class _MainNavigationScreenState extends State<MainNavigationScreen> {
-  int _currentIndex = 0;
+class _BaseNavigationScreenState extends State<BaseNavigationScreen> {
+  late int _currentIndex;
 
   final List<Widget> _screens = [
     const DashboardScreen(),
@@ -30,12 +37,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     'More',
   ];
 
-  final List<IconData> _icons = [
-    Icons.dashboard,
-    Icons.store,
-    Icons.shopping_cart,
-    Icons.more_horiz,
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +50,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: _screens,
+        children: [
+          if (_currentIndex == widget.initialIndex) widget.child else _screens[0],
+          if (_currentIndex == widget.initialIndex) widget.child else _screens[1],
+          if (_currentIndex == widget.initialIndex) widget.child else _screens[2],
+          if (_currentIndex == widget.initialIndex) widget.child else _screens[3],
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,

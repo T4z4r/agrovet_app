@@ -47,7 +47,27 @@ class _BaseNavigationScreenState extends State<BaseNavigationScreen> {
   Widget build(BuildContext context) {
     final cart = Provider.of<CartProvider>(context);
 
+    // Determine which screen to show
+    Widget currentScreen;
+    String currentTitle;
+
+    if (_currentIndex == widget.initialIndex && widget.child != null) {
+      currentScreen = widget.child;
+      currentTitle = 'AgroVet'; // Default title for navigated screens
+    } else {
+      currentScreen = _screens[_currentIndex];
+      currentTitle = _titles[_currentIndex];
+    }
+
     return Scaffold(
+      appBar: (_currentIndex == widget.initialIndex && widget.child != null)
+          ? null // Don't show app bar for child screens, they have their own
+          : AppBar(
+              title: Text(currentTitle),
+              centerTitle: true,
+              backgroundColor: const Color(0xFF2E7D32),
+              foregroundColor: Colors.white,
+            ),
       body: IndexedStack(
         index: _currentIndex,
         children: [

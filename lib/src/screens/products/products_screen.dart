@@ -34,191 +34,185 @@ class _ProductsScreenState extends State<ProductsScreen> {
     final prov = Provider.of<ProductProvider>(context);
     final cart = Provider.of<CartProvider>(context);
 
-    return Scaffold(
-      body: prov.loading
-          ? const LoadingWidget()
-          : Column(
-              children: [
-                // Search Bar
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search products...',
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: Tooltip(
-                        message: 'Search by product name',
-                        child: Icon(
-                          Icons.info_outline,
-                          color: Colors.grey[400],
-                          size: 20,
-                        ),
+    return prov.loading
+        ? const LoadingWidget()
+        : Column(
+            children: [
+              // Search Bar
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search products...',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: Tooltip(
+                      message: 'Search by product name',
+                      child: Icon(
+                        Icons.info_outline,
+                        color: Colors.grey[400],
+                        size: 20,
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
                     ),
-                    onChanged: (value) {
-                      setState(() {
-                        searchQuery = value;
-                      });
-                    },
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
                   ),
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value;
+                    });
+                  },
                 ),
+              ),
 
-                // Filter Chips (if needed)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+              // Filter Chips (if needed)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Filter by Category',
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ),
+                        const SizedBox(width: 8),
+                        Tooltip(
+                          message: 'Filter products by category',
+                          child: Icon(
+                            Icons.info_outline,
+                            color: Colors.grey[400],
+                            size: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
                         children: [
-                          Text(
-                            'Filter by Category',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          ),
+                          _buildFilterChip('All', selectedCategory == 'All',
+                              () {
+                            setState(() {
+                              selectedCategory = 'All';
+                            });
+                          }),
                           const SizedBox(width: 8),
-                          Tooltip(
-                            message: 'Filter products by category',
-                            child: Icon(
-                              Icons.info_outline,
-                              color: Colors.grey[400],
-                              size: 16,
-                            ),
-                          ),
+                          _buildFilterChip(
+                              'Medicines', selectedCategory == 'Medicines', () {
+                            setState(() {
+                              selectedCategory = 'Medicines';
+                            });
+                          }),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('Feed', selectedCategory == 'Feed',
+                              () {
+                            setState(() {
+                              selectedCategory = 'Feed';
+                            });
+                          }),
+                          const SizedBox(width: 8),
+                          _buildFilterChip(
+                              'Equipment', selectedCategory == 'Equipment', () {
+                            setState(() {
+                              selectedCategory = 'Equipment';
+                            });
+                          }),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Products Grid
+              Expanded(
+                child: prov.products.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            _buildFilterChip('All', selectedCategory == 'All',
-                                () {
-                              setState(() {
-                                selectedCategory = 'All';
-                              });
-                            }),
-                            const SizedBox(width: 8),
-                            _buildFilterChip(
-                                'Medicines', selectedCategory == 'Medicines',
-                                () {
-                              setState(() {
-                                selectedCategory = 'Medicines';
-                              });
-                            }),
-                            const SizedBox(width: 8),
-                            _buildFilterChip('Feed', selectedCategory == 'Feed',
-                                () {
-                              setState(() {
-                                selectedCategory = 'Feed';
-                              });
-                            }),
-                            const SizedBox(width: 8),
-                            _buildFilterChip(
-                                'Equipment', selectedCategory == 'Equipment',
-                                () {
-                              setState(() {
-                                selectedCategory = 'Equipment';
-                              });
-                            }),
+                            Icon(
+                              Icons.inventory_2_outlined,
+                              size: 80,
+                              color: Colors.grey[400],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No products available',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineMedium
+                                  ?.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Add products to start managing your inventory',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                    color: Colors.grey[500],
+                                  ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 24),
+                            ElevatedButton.icon(
+                              onPressed: () =>
+                                  Navigator.pushNamed(context, '/product-form'),
+                              icon: const Icon(Icons.add),
+                              label: const Text('Add First Product'),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 24, vertical: 12),
+                              ),
+                            ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: prov.products.length,
+                        itemBuilder: (ctx, i) {
+                          final p = prov.products[i];
+                          if (searchQuery.isNotEmpty &&
+                              !p.name
+                                  .toLowerCase()
+                                  .contains(searchQuery.toLowerCase())) {
+                            return const SizedBox.shrink();
+                          }
 
-                // Products Grid
-                Expanded(
-                  child: prov.products.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.inventory_2_outlined,
-                                size: 80,
-                                color: Colors.grey[400],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'No products available',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineMedium
-                                    ?.copyWith(
-                                      color: Colors.grey[600],
-                                    ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Add products to start managing your inventory',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(
-                                      color: Colors.grey[500],
-                                    ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 24),
-                              ElevatedButton.icon(
-                                onPressed: () => Navigator.pushNamed(
-                                    context, '/product-form'),
-                                icon: const Icon(Icons.add),
-                                label: const Text('Add First Product'),
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 24, vertical: 12),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: prov.products.length,
-                          itemBuilder: (ctx, i) {
-                            final p = prov.products[i];
-                            if (searchQuery.isNotEmpty &&
-                                !p.name
-                                    .toLowerCase()
-                                    .contains(searchQuery.toLowerCase())) {
-                              return const SizedBox.shrink();
-                            }
-
-                            return _buildProductCard(
+                          return _buildProductCard(
+                            context,
+                            product: p,
+                            onTap: () => Navigator.pushNamed(
                               context,
-                              product: p,
-                              onTap: () => Navigator.pushNamed(
-                                context,
-                                '/product-detail',
-                                arguments: p,
-                              ),
-                              onEdit: () => Navigator.pushNamed(
-                                context,
-                                '/product-form',
-                                arguments: p,
-                              ),
-                              onAddToCart: () => _addToCart(context, p, cart),
-                            );
-                          },
-                        ),
-                ),
-              ],
-            ),
-    );
+                              '/product-detail',
+                              arguments: p,
+                            ),
+                            onEdit: () => Navigator.pushNamed(
+                              context,
+                              '/product-form',
+                              arguments: p,
+                            ),
+                            onAddToCart: () => _addToCart(context, p, cart),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          );
   }
 
   Widget _buildFilterChip(String label, bool isSelected, VoidCallback onTap) {

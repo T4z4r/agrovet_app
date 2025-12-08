@@ -26,67 +26,64 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final auth = Provider.of<AuthProvider>(context);
     final cart = Provider.of<CartProvider>(context);
 
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildWelcomeCard(auth),
-              // const SizedBox(height: 20),
-              // Text(
-              //   'Quick Actions',
-              //   style: Theme.of(context).textTheme.titleLarge,
-              // ),
-              const SizedBox(height: 12),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  return GridView.count(
-                    crossAxisCount: constraints.maxWidth < 400 ? 2 : 3,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisSpacing: 2,
-                    mainAxisSpacing: 2,
-                    childAspectRatio: 1.1,
-                    children: [
-                      _buildActionCard(
-                        icon: Icons.store,
-                        title: 'Products',
-                        subtitle: 'View & Manage',
-                        color: Colors.blue,
-                        onTap: () => Navigator.pushNamed(context, '/products'),
-                      ),
-                      _buildActionCard(
-                        icon: Icons.shopping_cart,
-                        title: 'Cart',
-                        subtitle: '${cart.items.length} items',
-                        color: Colors.orange,
-                        onTap: () => Navigator.pushNamed(context, '/cart'),
-                      ),
-                      _buildActionCard(
-                        icon: Icons.pie_chart,
-                        title: 'Reports',
-                        subtitle: 'Daily Sales',
-                        color: Colors.purple,
-                        onTap: () => Navigator.pushNamed(context, '/reports'),
-                      ),
-                      _buildActionCard(
-                        icon: Icons.analytics,
-                        title: 'Analytics',
-                        subtitle: 'Coming Soon',
-                        color: Colors.grey,
-                        onTap: () {},
-                      ),
-                    ],
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-              _buildSummaryCard(cart),
-            ],
-          ),
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildWelcomeCard(auth),
+            // const SizedBox(height: 20),
+            // Text(
+            //   'Quick Actions',
+            //   style: Theme.of(context).textTheme.titleLarge,
+            // ),
+            const SizedBox(height: 12),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return GridView.count(
+                  crossAxisCount: constraints.maxWidth < 400 ? 2 : 3,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisSpacing: 2,
+                  mainAxisSpacing: 2,
+                  childAspectRatio: 1.1,
+                  children: [
+                    _buildActionCard(
+                      icon: Icons.store,
+                      title: 'Products',
+                      subtitle: 'View & Manage',
+                      color: Colors.blue,
+                      onTap: () => Navigator.pushNamed(context, '/products'),
+                    ),
+                    _buildActionCard(
+                      icon: Icons.shopping_cart,
+                      title: 'Cart',
+                      subtitle: '${cart.items.length} items',
+                      color: Colors.orange,
+                      onTap: () => Navigator.pushNamed(context, '/cart'),
+                    ),
+                    _buildActionCard(
+                      icon: Icons.pie_chart,
+                      title: 'Reports',
+                      subtitle: 'Daily Sales',
+                      color: Colors.purple,
+                      onTap: () => Navigator.pushNamed(context, '/reports'),
+                    ),
+                    _buildActionCard(
+                      icon: Icons.analytics,
+                      title: 'Analytics',
+                      subtitle: 'Coming Soon',
+                      color: Colors.grey,
+                      onTap: () {},
+                    ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 20),
+            _buildSummaryCard(cart),
+          ],
         ),
       ),
     );

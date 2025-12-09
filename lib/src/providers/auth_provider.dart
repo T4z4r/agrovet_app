@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/user.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _service = AuthService();
   bool _isAuthenticated = false;
-  Map<String, dynamic>? user;
+  User? user;
 
   bool get isAuthenticated => _isAuthenticated;
 
@@ -15,16 +16,16 @@ class AuthProvider extends ChangeNotifier {
     _loadFromStorage();
   }
 
-  Future<void> _saveUser(Map<String, dynamic> userData) async {
+  Future<void> _saveUser(User userData) async {
     final sp = await SharedPreferences.getInstance();
-    await sp.setString('user', jsonEncode(userData));
+    await sp.setString('user', jsonEncode(userData.toJson()));
   }
 
-  Future<Map<String, dynamic>?> _loadUser() async {
+  Future<User?> _loadUser() async {
     final sp = await SharedPreferences.getInstance();
     final userJson = sp.getString('user');
     if (userJson != null) {
-      return jsonDecode(userJson) as Map<String, dynamic>;
+      return User.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
     }
     return null;
   }
@@ -43,7 +44,7 @@ class AuthProvider extends ChangeNotifier {
       try {
         final res = await _service.me();
         if (res['success'] == true && res.containsKey('data')) {
-          user = res['data'];
+          user = User.fromJson(res['data']);
           await _saveUser(user!);
         }
       } catch (_) {
@@ -58,7 +59,7 @@ class AuthProvider extends ChangeNotifier {
     if (res['success'] == true && res.containsKey('data')) {
       await ApiService.saveToken(res['data']['token']);
       _isAuthenticated = true;
-      user = res['data']['user'];
+      user = User.fromJson(res['data']['user']);
       await _saveUser(user!);
       notifyListeners();
     }
@@ -71,7 +72,7 @@ class AuthProvider extends ChangeNotifier {
     if (res['success'] == true && res.containsKey('data')) {
       await ApiService.saveToken(res['data']['token']);
       _isAuthenticated = true;
-      user = res['data']['user'];
+      user = User.fromJson(res['data']['user']);
       await _saveUser(user!);
       notifyListeners();
     }

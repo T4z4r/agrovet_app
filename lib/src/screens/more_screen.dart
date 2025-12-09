@@ -25,7 +25,7 @@ class _MoreScreenState extends State<MoreScreen> {
         Provider.of<ProductProvider>(context, listen: false);
     final salesProvider = Provider.of<SalesProvider>(context, listen: false);
 
-    final userRole = auth.user?['role'] as String?;
+    final userRole = auth.user?.role;
 
     return ListView(
       children: [

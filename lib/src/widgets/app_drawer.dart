@@ -40,7 +40,7 @@ class AppDrawer extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      auth.user?['name'] ?? 'User',
+                      auth.user?.name ?? 'User',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -48,7 +48,7 @@ class AppDrawer extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      auth.user?['email'] ?? '',
+                      auth.user?.email ?? '',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.8),
                         fontSize: 14,

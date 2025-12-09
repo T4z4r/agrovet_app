@@ -37,7 +37,7 @@ class _RoleBasedNavigationScreenState extends State<RoleBasedNavigationScreen> {
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
     final cart = Provider.of<CartProvider>(context);
-    final userRole = auth.user?['role'] as String?;
+    final userRole = auth.user?.role;
     final tabs = RoleUtils.getNavigationTabs(userRole);
     final icons = RoleUtils.getNavigationIcons(userRole);
 

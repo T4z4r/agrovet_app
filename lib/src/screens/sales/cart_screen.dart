@@ -40,7 +40,7 @@ class _CartScreenState extends State<CartScreen> {
     final api = ApiService();
     final items = cart.items.map((i) => i.toJson()).toList();
     final body = {
-      'seller_id': auth.user?['id'],
+      'seller_id': auth.user?.id,
       'sale_date': DateTime.now().toIso8601String().split('T')[0],
       'items': items
     };

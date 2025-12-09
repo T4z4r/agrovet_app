@@ -118,7 +118,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    auth.user?['name'] ?? 'User',
+                    auth.user?.name ?? 'User',
                     style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                     overflow: TextOverflow.ellipsis,
                   ),

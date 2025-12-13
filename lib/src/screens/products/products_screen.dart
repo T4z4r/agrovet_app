@@ -3,10 +3,8 @@ import 'package:provider/provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../models/sale_item.dart';
-import 'product_detail_screen.dart';
-import 'product_form_screen.dart';
+import '../../models/product.dart';
 import '../../widgets/loading_widget.dart';
-import '../../widgets/app_drawer.dart';
 
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
@@ -192,13 +190,16 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                   .contains(searchQuery.toLowerCase())) {
                             return const SizedBox.shrink();
                           }
+                          if (selectedCategory != 'All' && p.category != selectedCategory) {
+                            return const SizedBox.shrink();
+                          }
 
                           return _buildProductCard(
                             context,
                             product: p,
                             onTap: () => Navigator.pushNamed(
                               context,
-                              '/product-detail',
+                              '/product-detail',5
                               arguments: p,
                             ),
                             onEdit: () => Navigator.pushNamed(
@@ -221,7 +222,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
       selected: isSelected,
       onSelected: (_) => onTap(),
       backgroundColor: Colors.grey[200],
-      selectedColor: const Color(0xFF2E7D32).withOpacity(0.2),
+      selectedColor: const Color(0xFF2E7D32).withValues(alpha: 0.2),
       checkmarkColor: const Color(0xFF2E7D32),
       labelStyle: TextStyle(
         color: isSelected ? const Color(0xFF2E7D32) : Colors.grey[700],
@@ -231,7 +232,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   Widget _buildProductCard(
     BuildContext context, {
-    required dynamic product,
+    required Product product,
     required VoidCallback onTap,
     required VoidCallback onEdit,
     required VoidCallback onAddToCart,
@@ -254,7 +255,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2E7D32).withOpacity(0.1),
+                      color: const Color(0xFF2E7D32).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
@@ -370,7 +371,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
             right: 8,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 shape: BoxShape.circle,
               ),
               child: Tooltip(
@@ -392,7 +393,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
     );
   }
 
-  void _addToCart(BuildContext context, dynamic product, CartProvider cart) {
+  void _addToCart(BuildContext context, Product product, CartProvider cart) {
     final saleItem = SaleItem(
       productId: product.id,
       price: product.sellingPrice,

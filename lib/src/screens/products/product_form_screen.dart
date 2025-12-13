@@ -16,11 +16,14 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _unitController = TextEditingController();
+  final _categoryController = TextEditingController();
   final _stockController = TextEditingController();
   final _costPriceController = TextEditingController();
   final _sellingPriceController = TextEditingController();
 
   bool _loading = false;
+
+  final List<String> _categories = ['Medicines', 'Feed', 'Equipment'];
 
   @override
   void initState() {
@@ -28,6 +31,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     if (widget.product != null) {
       _nameController.text = widget.product!.name;
       _unitController.text = widget.product!.unit;
+      _categoryController.text = widget.product!.category ?? '';
       _stockController.text = widget.product!.stock.toString();
       _costPriceController.text = widget.product!.costPrice.toString();
       _sellingPriceController.text = widget.product!.sellingPrice.toString();
@@ -38,6 +42,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   void dispose() {
     _nameController.dispose();
     _unitController.dispose();
+    _categoryController.dispose();
     _stockController.dispose();
     _costPriceController.dispose();
     _sellingPriceController.dispose();
@@ -52,6 +57,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     final productData = {
       'name': _nameController.text.trim(),
       'unit': _unitController.text.trim(),
+      'category': _categoryController.text.trim(),
       'stock': int.parse(_stockController.text.trim()),
       'cost_price': int.parse(_costPriceController.text.trim()),
       'selling_price': int.parse(_sellingPriceController.text.trim()),
@@ -173,6 +179,35 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   }
                   if (value.length < 1) {
                     return 'Unit should be at least 1 character';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Category
+              DropdownButtonFormField<String>(
+                value: _categoryController.text.isNotEmpty
+                    ? _categoryController.text
+                    : null,
+                decoration: const InputDecoration(
+                  labelText: 'Category',
+                  prefixIcon: Icon(Icons.category),
+                  border: OutlineInputBorder(),
+                  helperText: 'Select the product category',
+                ),
+                items: _categories.map((category) {
+                  return DropdownMenuItem(
+                    value: category,
+                    child: Text(category),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  _categoryController.text = value!;
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please select a category';
                   }
                   return null;
                 },

@@ -29,6 +29,7 @@ class ProductProvider extends ChangeNotifier {
       final res = await _api.get('/products');
       if (res.statusCode == 200) {
         final responseData = jsonDecode(res.body);
+        print('Product API Response: $responseData'); // Print the full API response
         if (responseData['success'] == true) {
           final data = responseData['data'] as List;
           _products = data.map((e) => Product.fromJson(e)).toList();

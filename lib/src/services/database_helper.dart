@@ -22,7 +22,7 @@ class DatabaseHelper {
     String path = join(documentsDirectory.path, 'agrovet.db');
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -34,6 +34,7 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY,
         name TEXT,
         unit TEXT,
+        category TEXT,
         stock INTEGER,
         cost_price REAL,
         selling_price REAL
@@ -95,6 +96,10 @@ class DatabaseHelper {
         )
       ''');
     }
+    if (oldVersion < 3) {
+      // Add category column to products table
+      await db.execute('ALTER TABLE products ADD COLUMN category TEXT');
+    }
   }
 
   // Products methods
@@ -104,6 +109,7 @@ class DatabaseHelper {
       'id': product['id'],
       'name': product['name'],
       'unit': product['unit'],
+      'category': product['category'],
       'stock': product['stock'],
       'cost_price': product['cost_price'],
       'selling_price': product['selling_price'],
@@ -122,6 +128,7 @@ class DatabaseHelper {
     final filteredProduct = {
       'name': product['name'],
       'unit': product['unit'],
+      'category': product['category'],
       'stock': product['stock'],
       'cost_price': product['cost_price'],
       'selling_price': product['selling_price'],

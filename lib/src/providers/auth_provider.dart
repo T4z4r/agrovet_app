@@ -43,8 +43,8 @@ class AuthProvider extends ChangeNotifier {
       user = await _loadUser();
       try {
         final res = await _service.me();
-        if (res['success'] == true && res.containsKey('data')) {
-          user = User.fromJson(res['data']);
+        if (res.success && res.data != null) {
+          user = res.data!;
           await _saveUser(user!);
         }
       } catch (_) {
@@ -55,32 +55,84 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<Map<String, dynamic>> login(String email, String password) async {
-    final res = await _service.login(email, password);
-    if (res['success'] == true && res.containsKey('data')) {
-      await ApiService.saveToken(res['data']['token']);
-      _isAuthenticated = true;
-      user = User.fromJson(res['data']['user']);
-      await _saveUser(user!);
-      notifyListeners();
+    try {
+      final res = await _service.login(email, password);
+      if (res.success && res.data != null) {
+        await ApiService.saveToken(res.data!.token);
+        _isAuthenticated = true;
+        user = res.data!.user;
+        await _saveUser(user!);
+        notifyListeners();
+        return {
+          'success': true,
+          'message': res.message,
+          'data': {
+            'user': user,
+            'token': res.data!.token,
+          }
+        };
+      } else {
+        return {
+          'success': false,
+          'message': res.message,
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': e.toString(),
+      };
     }
-    return res;
   }
 
-  Future<Map<String, dynamic>> register(
-      String name, String email, String password, String role) async {
-    final res = await _service.register(name, email, password, role);
-    if (res['success'] == true && res.containsKey('data')) {
-      await ApiService.saveToken(res['data']['token']);
-      _isAuthenticated = true;
-      user = User.fromJson(res['data']['user']);
-      await _saveUser(user!);
-      notifyListeners();
+  Future<Map<String, dynamic>> register({
+    required String name,
+    required String email,
+    required String password,
+    required String role,
+  }) async {
+    try {
+      final res = await _service.register(
+        name: name,
+        email: email,
+        password: password,
+        role: role,
+      );
+      if (res.success && res.data != null) {
+        await ApiService.saveToken(res.data!.token);
+        _isAuthenticated = true;
+        user = res.data!.user;
+        await _saveUser(user!);
+        notifyListeners();
+        return {
+          'success': true,
+          'message': res.message,
+          'data': {
+            'user': user,
+            'token': res.data!.token,
+          }
+        };
+      } else {
+        return {
+          'success': false,
+          'message': res.message,
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': e.toString(),
+      };
     }
-    return res;
   }
 
   Future<void> logout() async {
-    await _service.logout();
+    try {
+      await _service.logout();
+    } catch (_) {
+      // Continue with logout even if API call fails
+    }
+    
     _isAuthenticated = false;
     user = null;
     await _clearUser();

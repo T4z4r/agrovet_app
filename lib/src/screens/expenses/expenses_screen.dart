@@ -58,7 +58,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                           children: [
                             Text('Amount: ${NumberFormat.currency(symbol: 'KES ').format(expense.amount)}'),
                             Text('Date: ${DateFormat('yyyy-MM-dd').format(DateTime.parse(expense.date))}'),
-                            if (expense.description.isNotEmpty)
+                            if (expense.description!.isNotEmpty)
                               Text('Description: ${expense.description}'),
                           ],
                         ),

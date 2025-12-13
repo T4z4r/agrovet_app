@@ -27,16 +27,13 @@ class SalesProvider extends ChangeNotifier {
     // Try to fetch from API and update local DB
     try {
       final res = await _api.get('/sales');
-      if (res.statusCode == 200) {
-        final responseData = jsonDecode(res.body);
-        if (responseData['success'] == true) {
-          final data = responseData['data'] as List;
-          _sales = data.map((e) => Sale.fromJson(e)).toList();
+      if (res.success) {
+        final data = res.data as List;
+        _sales = data.map((e) => Sale.fromJson(e)).toList();
 
-          // Save to local DB
-          for (var sale in data) {
-            await _db.insertSale(sale);
-          }
+        // Save to local DB
+        for (var sale in data) {
+          await _db.insertSale(sale);
         }
       }
     } catch (e) {
@@ -62,22 +59,22 @@ class SalesProvider extends ChangeNotifier {
   Future<bool> createSale(Map<String, dynamic> saleData) async {
     try {
       final res = await _api.post('/sales', saleData);
-      if (res.statusCode == 200) {
-        final responseData = jsonDecode(res.body);
-        if (responseData['success'] == true) {
-          final data = responseData['data'];
-          final newSale = Sale.fromJson(data);
-          _sales.add(newSale);
-          await _db.insertSale(data);
-          notifyListeners();
-          return true;
-        } else if (res.statusCode == 422) {
-          // Handle insufficient stock error
-          throw Exception(responseData['message'] ?? 'Insufficient stock');
-        }
+      if (res.success) {
+        final data = res.data;
+        final newSale = Sale.fromJson(data);
+        _sales.add(newSale);
+        await _db.insertSale(data);
+        notifyListeners();
+        return true;
       }
+    } on ApiException catch (e) {
+      // Re-throw validation errors (like insufficient stock)
+      if (e.statusCode == 422) {
+        rethrow;
+      }
+      // For other API errors, try to save offline
     } catch (e) {
-      // If offline, save locally for later sync
+      // If offline or other error, save locally for later sync
       try {
         await _db.insertPendingSale(saleData);
         final newSale = Sale.fromJson({
@@ -105,7 +102,7 @@ class SalesProvider extends ChangeNotifier {
         };
 
         final res = await _api.post('/sales', saleData);
-        if (res.statusCode == 201) {
+        if (res.success) {
           await _db.markSaleAsSynced(sale['id']);
         }
       } catch (e) {
@@ -122,11 +119,8 @@ class SalesProvider extends ChangeNotifier {
   Future<Sale?> getSale(int id) async {
     try {
       final res = await _api.get('/sales/$id');
-      if (res.statusCode == 200) {
-        final responseData = jsonDecode(res.body);
-        if (responseData['success'] == true) {
-          return Sale.fromJson(responseData['data']);
-        }
+      if (res.success) {
+        return Sale.fromJson(res.data);
       }
     } catch (e) {
       // Handle error
@@ -136,7 +130,7 @@ class SalesProvider extends ChangeNotifier {
 
   Future<String?> downloadReceipt(int id) async {
     try {
-      final res = await _api.get('/sales/$id/receipt');
+      final res = await _api.downloadFile('/sales/$id/receipt');
       if (res.statusCode == 200) {
         // Assuming it returns a URL or content
         return res.body;

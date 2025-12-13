@@ -4,21 +4,22 @@ class Product {
   final String unit;
   final String? category;
   int stock;
-  final double costPrice;
-  final double sellingPrice;
+  final int costPrice; // Changed from double to int as per API spec
+  final int sellingPrice; // Changed from double to int as per API spec
   final String createdAt;
   final String updatedAt;
 
-  Product(
-      {required this.id,
-      required this.name,
-      required this.unit,
-      this.category,
-      required this.stock,
-      required this.costPrice,
-      required this.sellingPrice,
-      required this.createdAt,
-      required this.updatedAt});
+  Product({
+    required this.id,
+    required this.name,
+    required this.unit,
+    this.category,
+    required this.stock,
+    required this.costPrice,
+    required this.sellingPrice,
+    required this.createdAt,
+    required this.updatedAt,
+  });
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
@@ -29,8 +30,8 @@ class Product {
       stock: (json['stock'] ?? 0) is int
           ? json['stock']
           : int.parse(json['stock'].toString()),
-      costPrice: (json['cost_price'] ?? 0).toDouble(),
-      sellingPrice: (json['selling_price'] ?? 0).toDouble(),
+      costPrice: (json['cost_price'] ?? 0).round(),
+      sellingPrice: (json['selling_price'] ?? 0).round(),
       createdAt: json['created_at'] ?? '',
       updatedAt: json['updated_at'] ?? '',
     );

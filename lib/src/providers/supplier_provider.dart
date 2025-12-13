@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../models/supplier.dart';
 import '../services/api_service.dart';
@@ -15,13 +14,13 @@ class SupplierProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final res = await _api.get('/suppliers');
-      if (res.statusCode == 200) {
-        final responseData = jsonDecode(res.body);
-        if (responseData['success'] == true) {
-          final data = responseData['data'] as List;
-          _suppliers = data.map((e) => Supplier.fromJson(e)).toList();
-        }
+      final res = await _api.getList<Supplier>(
+        '/suppliers',
+        fromJsonT: (data) => Supplier.fromJson(data),
+      );
+
+      if (res.success && res.data != null) {
+        _suppliers = res.data!;
       }
     } catch (e) {
       // Handle error
@@ -33,16 +32,16 @@ class SupplierProvider extends ChangeNotifier {
 
   Future<bool> createSupplier(Map<String, dynamic> supplierData) async {
     try {
-      final res = await _api.post('/suppliers', supplierData);
-      if (res.statusCode == 200) {
-        final responseData = jsonDecode(res.body);
-        if (responseData['success'] == true) {
-          final data = responseData['data'];
-          final newSupplier = Supplier.fromJson(data);
-          _suppliers.add(newSupplier);
-          notifyListeners();
-          return true;
-        }
+      final res = await _api.post<Supplier>(
+        '/suppliers',
+        supplierData,
+        fromJsonT: (data) => Supplier.fromJson(data),
+      );
+
+      if (res.success && res.data != null) {
+        _suppliers.add(res.data!);
+        notifyListeners();
+        return true;
       }
     } catch (e) {
       // Handle error
@@ -52,12 +51,13 @@ class SupplierProvider extends ChangeNotifier {
 
   Future<Supplier?> getSupplier(int id) async {
     try {
-      final res = await _api.get('/suppliers/$id');
-      if (res.statusCode == 200) {
-        final responseData = jsonDecode(res.body);
-        if (responseData['success'] == true) {
-          return Supplier.fromJson(responseData['data']);
-        }
+      final res = await _api.get<Supplier>(
+        '/suppliers/$id',
+        fromJsonT: (data) => Supplier.fromJson(data),
+      );
+
+      if (res.success && res.data != null) {
+        return res.data!;
       }
     } catch (e) {
       // Handle error
@@ -67,19 +67,19 @@ class SupplierProvider extends ChangeNotifier {
 
   Future<bool> updateSupplier(int id, Map<String, dynamic> supplierData) async {
     try {
-      final res = await _api.put('/suppliers/$id', supplierData);
-      if (res.statusCode == 200) {
-        final responseData = jsonDecode(res.body);
-        if (responseData['success'] == true) {
-          final data = responseData['data'];
-          final updatedSupplier = Supplier.fromJson(data);
-          final index = _suppliers.indexWhere((s) => s.id == id);
-          if (index >= 0) {
-            _suppliers[index] = updatedSupplier;
-            notifyListeners();
-          }
-          return true;
+      final res = await _api.put<Supplier>(
+        '/suppliers/$id',
+        supplierData,
+        fromJsonT: (data) => Supplier.fromJson(data),
+      );
+
+      if (res.success && res.data != null) {
+        final index = _suppliers.indexWhere((s) => s.id == id);
+        if (index >= 0) {
+          _suppliers[index] = res.data!;
+          notifyListeners();
         }
+        return true;
       }
     } catch (e) {
       // Handle error
@@ -89,14 +89,12 @@ class SupplierProvider extends ChangeNotifier {
 
   Future<bool> deleteSupplier(int id) async {
     try {
-      final res = await _api.delete('/suppliers/$id');
-      if (res.statusCode == 200) {
-        final responseData = jsonDecode(res.body);
-        if (responseData['success'] == true) {
-          _suppliers.removeWhere((s) => s.id == id);
-          notifyListeners();
-          return true;
-        }
+      final res = await _api.delete<void>('/suppliers/$id');
+
+      if (res.success) {
+        _suppliers.removeWhere((s) => s.id == id);
+        notifyListeners();
+        return true;
       }
     } catch (e) {
       // Handle error

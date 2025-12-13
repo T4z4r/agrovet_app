@@ -48,7 +48,7 @@ class _CartScreenState extends State<CartScreen> {
     try {
       final res = await api.post('/sales', body);
 
-      if (res.statusCode == 201 || res.statusCode == 200) {
+      if (res.success) {
         cart.clear();
         setState(() {
           message = 'Sale recorded successfully!';
@@ -91,7 +91,7 @@ class _CartScreenState extends State<CartScreen> {
         }
       } else {
         setState(() {
-          message = 'Sale failed: ${res.body}. Please try again.';
+          message = 'Sale failed: ${res.message}. Please try again.';
         });
       }
     } catch (e) {

@@ -190,7 +190,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                   .contains(searchQuery.toLowerCase())) {
                             return const SizedBox.shrink();
                           }
-                          if (selectedCategory != 'All' && p.category != selectedCategory) {
+                          if (selectedCategory != 'All' &&
+                              p.category != selectedCategory) {
                             return const SizedBox.shrink();
                           }
 
@@ -199,7 +200,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                             product: p,
                             onTap: () => Navigator.pushNamed(
                               context,
-                              '/product-detail',5
+                              '/product-detail',
                               arguments: p,
                             ),
                             onEdit: () => Navigator.pushNamed(

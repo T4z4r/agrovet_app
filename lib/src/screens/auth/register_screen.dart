@@ -286,13 +286,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       final res = await auth.register(
-        _name.text.trim(),
-        _email.text.trim(),
-        _password.text.trim(),
-        role,
+        name: _name.text.trim(),
+        email: _email.text.trim(),
+        password: _password.text.trim(),
+        role: role,
       );
 
-      if (res.containsKey('token')) {
+      if (res['success'] == true) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

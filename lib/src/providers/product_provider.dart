@@ -26,22 +26,22 @@ class ProductProvider extends ChangeNotifier {
 
     // Try to fetch from API and update local DB
     try {
-      final res = await _api.get('/products');
-      if (res.statusCode == 200) {
-        final responseData = jsonDecode(res.body);
-        print('Product API Response: $responseData'); // Print the full API response
-        if (responseData['success'] == true) {
-          final data = responseData['data'] as List;
-          _products = data.map((e) => Product.fromJson(e)).toList();
-
-          // Save to local DB
-          for (var product in data) {
-            await db.insertProduct(product);
-          }
+      final res = await _api.getList<Product>(
+        '/api/products',
+        fromJsonT: (data) => Product.fromJson(data),
+      );
+      
+      if (res.success && res.data != null) {
+        _products = res.data!;
+        
+        // Save to local DB
+        for (var product in res.data!) {
+          await db.insertProduct(product.toJson());
         }
       }
     } catch (e) {
       // If API fails, keep local data
+      print('Failed to fetch products: $e');
     }
 
     loading = false;
@@ -50,79 +50,81 @@ class ProductProvider extends ChangeNotifier {
 
   Future<bool> createProduct(Map<String, dynamic> productData) async {
     try {
-      final res = await _api.post('/products', productData);
-      if (res.statusCode == 200) {
-        final responseData = jsonDecode(res.body);
-        if (responseData['success'] == true) {
-          final productJson = responseData['data'];
-          final newProduct = Product.fromJson(productJson);
-          _products.add(newProduct);
-          final db = DatabaseHelper();
-          await db.insertProduct(productJson);
-          notifyListeners();
-          return true;
-        }
+      final res = await _api.post<Product>(
+        '/api/products',
+        productData,
+        fromJsonT: (data) => Product.fromJson(data),
+      );
+      
+      if (res.success && res.data != null) {
+        _products.add(res.data!);
+        final db = DatabaseHelper();
+        await db.insertProduct(productData);
+        notifyListeners();
+        return true;
       }
     } catch (e) {
-      // Handle error
+      print('Failed to create product: $e');
     }
     return false;
   }
 
   Future<Product?> getProduct(int id) async {
     try {
-      final res = await _api.get('/products/$id');
-      if (res.statusCode == 200) {
-        final responseData = jsonDecode(res.body);
-        if (responseData['success'] == true) {
-          return Product.fromJson(responseData['data']);
-        }
+      final res = await _api.get<Product>(
+        '/api/products/$id',
+        fromJsonT: (data) => Product.fromJson(data),
+      );
+      
+      if (res.success && res.data != null) {
+        return res.data!;
       }
     } catch (e) {
-      // Handle error
+      print('Failed to get product: $e');
     }
     return null;
   }
 
   Future<bool> updateProduct(int id, Map<String, dynamic> productData) async {
     try {
-      final res = await _api.put('/products/$id', productData);
-      if (res.statusCode == 200) {
-        final responseData = jsonDecode(res.body);
-        if (responseData['success'] == true) {
-          final productJson = responseData['data'];
-          final updatedProduct = Product.fromJson(productJson);
-          final index = _products.indexWhere((p) => p.id == id);
-          if (index >= 0) {
-            _products[index] = updatedProduct;
-            final db = DatabaseHelper();
-            await db.updateProduct(id, productJson);
-            notifyListeners();
-          }
-          return true;
+      final res = await _api.put<Product>(
+        '/api/products/$id',
+        productData,
+        fromJsonT: (data) => Product.fromJson(data),
+      );
+      
+      if (res.success && res.data != null) {
+        final index = _products.indexWhere((p) => p.id == id);
+        if (index >= 0) {
+          _products[index] = res.data!;
+          final db = DatabaseHelper();
+          await db.updateProduct(id, productData);
+          notifyListeners();
         }
+        return true;
       }
     } catch (e) {
-      // Handle error
+      print('Failed to update product: $e');
     }
     return false;
   }
 
   Future<bool> deleteProduct(int id) async {
     try {
-      final res = await _api.delete('/products/$id');
-      if (res.statusCode == 200) {
-        final responseData = jsonDecode(res.body);
-        if (responseData['success'] == true) {
-          _products.removeWhere((p) => p.id == id);
-          final db = DatabaseHelper();
-          await db.deleteProduct(id);
-          notifyListeners();
-          return true;
-        }
+      final res = await _api.delete<void>(
+        '/api/products/$id',
+        fromJsonT: (_) => null,
+      );
+      
+      if (res.success) {
+        _products.removeWhere((p) => p.id == id);
+        final db = DatabaseHelper();
+        await db.deleteProduct(id);
+        notifyListeners();
+        return true;
       }
     } catch (e) {
-      // Handle error
+      print('Failed to delete product: $e');
     }
     return false;
   }

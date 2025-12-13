@@ -45,7 +45,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
   void _populateForm(Expense expense) {
     _categoryController.text = expense.category;
     _amountController.text = expense.amount.toString();
-    _descriptionController.text = expense.description;
+    _descriptionController.text = expense.description ?? '';
     _selectedDate = DateTime.parse(expense.date);
   }
 
@@ -76,7 +76,9 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
             children: [
               // Category Selection
               DropdownButtonFormField<String>(
-                value: _categoryController.text.isNotEmpty ? _categoryController.text : null,
+                value: _categoryController.text.isNotEmpty
+                    ? _categoryController.text
+                    : null,
                 decoration: const InputDecoration(
                   labelText: 'Category *',
                   border: OutlineInputBorder(),
@@ -160,7 +162,8 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
                     : Text(isEditing ? 'Update Expense' : 'Save Expense'),

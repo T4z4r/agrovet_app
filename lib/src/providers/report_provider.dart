@@ -7,37 +7,85 @@ class ReportProvider extends ChangeNotifier {
   Map<String, dynamic>? dailyReport;
   Map<String, dynamic>? profitReport;
   Map<String, dynamic>? dashboardData;
+  bool isLoading = false;
+  String? errorMessage;
 
   Future<void> fetchDailyReport(String date) async {
-    final res = await _api.get('/reports/daily/$date');
-    if (res.statusCode == 200) {
-      final responseData = jsonDecode(res.body);
-      if (responseData['success'] == true) {
-        dailyReport = responseData['data'];
-        notifyListeners();
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      final res = await _api.get<Map<String, dynamic>>('/reports/daily/$date');
+      
+      if (res.success && res.data != null) {
+        dailyReport = res.data;
+      } else {
+        errorMessage = res.message.isNotEmpty ? res.message : 'Failed to fetch daily report';
       }
+    } catch (e) {
+      errorMessage = 'Failed to fetch daily report: ${e.toString()}';
+      dailyReport = null;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
   }
 
   Future<void> fetchProfitReport(String startDate, String endDate) async {
-    final res = await _api.get('/reports/profit/$startDate/$endDate');
-    if (res.statusCode == 200) {
-      final responseData = jsonDecode(res.body);
-      if (responseData['success'] == true) {
-        profitReport = responseData['data'];
-        notifyListeners();
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      final res = await _api.get<Map<String, dynamic>>('/reports/profit/$startDate/$endDate');
+      
+      if (res.success && res.data != null) {
+        profitReport = res.data;
+      } else {
+        errorMessage = res.message.isNotEmpty ? res.message : 'Failed to fetch profit report';
       }
+    } catch (e) {
+      errorMessage = 'Failed to fetch profit report: ${e.toString()}';
+      profitReport = null;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
   }
 
   Future<void> fetchDashboardData() async {
-    final res = await _api.get('/reports/dashboard');
-    if (res.statusCode == 200) {
-      final responseData = jsonDecode(res.body);
-      if (responseData['success'] == true) {
-        dashboardData = responseData['data'];
-        notifyListeners();
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      final res = await _api.get<Map<String, dynamic>>('/reports/dashboard');
+      
+      if (res.success && res.data != null) {
+        dashboardData = res.data;
+      } else {
+        errorMessage = res.message.isNotEmpty ? res.message : 'Failed to fetch dashboard data';
       }
+    } catch (e) {
+      errorMessage = 'Failed to fetch dashboard data: ${e.toString()}';
+      dashboardData = null;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
+  }
+
+  void clearError() {
+    errorMessage = null;
+    notifyListeners();
+  }
+
+  void clearReports() {
+    dailyReport = null;
+    profitReport = null;
+    dashboardData = null;
+    errorMessage = null;
+    notifyListeners();
   }
 }

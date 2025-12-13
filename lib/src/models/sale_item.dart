@@ -1,16 +1,19 @@
 class SaleItem {
   final int productId;
   int quantity;
-  final double price;
+  final int price; // Changed from double to int as per API spec
 
-  SaleItem(
-      {required this.productId, required this.quantity, required this.price});
+  SaleItem({
+    required this.productId,
+    required this.quantity,
+    required this.price,
+  });
 
   factory SaleItem.fromJson(Map<String, dynamic> json) {
     return SaleItem(
       productId: json['product_id'],
       quantity: json['quantity'],
-      price: (json['price'] ?? 0).toDouble(),
+      price: (json['price'] ?? 0).round(),
     );
   }
 

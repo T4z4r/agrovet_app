@@ -15,17 +15,16 @@ class StockProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final res = await _api.get('/stock');
-      if (res.statusCode == 200) {
-        final responseData = jsonDecode(res.body);
-        if (responseData['success'] == true) {
-          final data = responseData['data'] as List;
-          _transactions =
-              data.map((e) => StockTransaction.fromJson(e)).toList();
-        }
+      final res = await _api.getList<StockTransaction>(
+        '/api/stock',
+        fromJsonT: (data) => StockTransaction.fromJson(data),
+      );
+      
+      if (res.success && res.data != null) {
+        _transactions = res.data!;
       }
     } catch (e) {
-      // Handle error
+      print('Failed to fetch stock transactions: $e');
     }
 
     loading = false;
@@ -34,51 +33,53 @@ class StockProvider extends ChangeNotifier {
 
   Future<bool> createTransaction(Map<String, dynamic> transactionData) async {
     try {
-      final res = await _api.post('/stock', transactionData);
-      if (res.statusCode == 200) {
-        final responseData = jsonDecode(res.body);
-        if (responseData['success'] == true) {
-          final data = responseData['data'];
-          final newTransaction = StockTransaction.fromJson(data);
-          _transactions.add(newTransaction);
-          notifyListeners();
-          return true;
-        }
+      final res = await _api.post<StockTransaction>(
+        '/api/stock',
+        transactionData,
+        fromJsonT: (data) => StockTransaction.fromJson(data),
+      );
+      
+      if (res.success && res.data != null) {
+        _transactions.add(res.data!);
+        notifyListeners();
+        return true;
       }
     } catch (e) {
-      // Handle error
+      print('Failed to create stock transaction: $e');
     }
     return false;
   }
 
   Future<StockTransaction?> getTransaction(int id) async {
     try {
-      final res = await _api.get('/stock/$id');
-      if (res.statusCode == 200) {
-        final responseData = jsonDecode(res.body);
-        if (responseData['success'] == true) {
-          return StockTransaction.fromJson(responseData['data']);
-        }
+      final res = await _api.get<StockTransaction>(
+        '/api/stock/$id',
+        fromJsonT: (data) => StockTransaction.fromJson(data),
+      );
+      
+      if (res.success && res.data != null) {
+        return res.data!;
       }
     } catch (e) {
-      // Handle error
+      print('Failed to get stock transaction: $e');
     }
     return null;
   }
 
   Future<bool> deleteTransaction(int id) async {
     try {
-      final res = await _api.delete('/stock/$id');
-      if (res.statusCode == 200) {
-        final responseData = jsonDecode(res.body);
-        if (responseData['success'] == true) {
-          _transactions.removeWhere((t) => t.id == id);
-          notifyListeners();
-          return true;
-        }
+      final res = await _api.delete<void>(
+        '/api/stock/$id',
+        fromJsonT: (_) => null,
+      );
+      
+      if (res.success) {
+        _transactions.removeWhere((t) => t.id == id);
+        notifyListeners();
+        return true;
       }
     } catch (e) {
-      // Handle error
+      print('Failed to delete stock transaction: $e');
     }
     return false;
   }
